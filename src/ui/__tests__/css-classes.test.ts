@@ -73,8 +73,7 @@ describe('CSS class integrity', () => {
         'card', 'navigation-sidebar', 'titlebar', 'background',
         'monospace', 'accent', 'dim-label', 'title-1', 'title-2', 'title-3', 'title-4',
         'heading', 'body', 'caption', 'numeric',
-        // Pre-existing custom CSS classes used in code but lacking style.css defs
-        // TODO: move these into style.css
+        // Moved to style.css — empty stubs replaced with real rules
         'error-stack-expander', 'error-stack-clamp', 'entry-row-box',
         'menu-popover', 'menu-popover-box',
         'action-bar', 'templates-grid', 'templates-list', 'templates-scroll',
