@@ -1,0 +1,10 @@
+id: no-scrolled-window
+message: Use createScrollContent() from templates instead of 'new Gtk.ScrolledWindow()'
+severity: error
+language: TypeScript
+rule:
+  pattern: new Gtk.ScrolledWindow($$$)
+note: |
+  Gtk.ScrolledWindow must not be used directly in ui layer.
+  Use createScrollContent() from src/ui/templates/scroll-content.ts which wraps
+  Adw.ClampScrollable + Gtk.Viewport with correct sizing.

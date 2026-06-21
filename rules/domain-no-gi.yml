@@ -1,0 +1,9 @@
+id: domain-no-gi
+message: Domain layer must not import GI modules (pure TS only)
+severity: error
+language: TypeScript
+rule:
+  pattern: imports.gi
+note: |
+  Domain files must be pure TypeScript with zero GI imports.
+  This ensures testability with vitest in Node.js runtime.

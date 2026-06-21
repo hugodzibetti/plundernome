@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.github.plundernome" path="/io/github/plundernome/">
+    <key name="install-path" type="s">
+      <default>'~/Games/Plundernome'</default>
+      <summary>Default download directory</summary>
+      <description>Directory where downloaded games are saved. Supports ~ for home directory.</description>
+    </key>
+    <key name="download-concurrency" type="i">
+      <default>3</default>
+      <range min="1" max="10"/>
+      <summary>Maximum concurrent downloads</summary>
+      <description>Number of simultaneous downloads allowed. Higher values use more bandwidth.</description>
+    </key>
+    <key name="view-mode" type="s">
+      <choices>
+        <choice value='grid'/>
+        <choice value='list'/>
+      </choices>
+      <default>'grid'</default>
+      <summary>Catalog view mode</summary>
+      <description>Display mode for the game catalog: grid or list.</description>
+    </key>
+    <key name="wine-path" type="s">
+      <default>''</default>
+      <summary>Wine or Proton binary path</summary>
+      <description>Full path to the Wine or Proton binary. Leave empty for auto-detection.</description>
+    </key>
+    <key name="adaptive-concurrency" type="b">
+      <default>true</default>
+      <summary>Adaptive download concurrency</summary>
+      <description>Dynamically adjust the number of concurrent downloads based on measured per-connection speed.</description>
+    </key>
+    <key name="speed-limit" type="i">
+      <default>0</default>
+      <range min="0"/>
+      <summary>Download speed limit</summary>
+      <description>Maximum download speed in bytes per second. 0 = unlimited.</description>
+    </key>
+    <key name="color-scheme" type="i">
+      <default>0</default>
+      <range min="0" max="2"/>
+      <summary>Color scheme</summary>
+      <description>0=system default, 1=force light, 2=force dark</description>
+    </key>
+    <key name="enabled-sources" type="s">
+      <default>''</default>
+      <summary>Comma-separated list of enabled source IDs</summary>
+      <description>Source IDs (fitgirl,dodi,steamrip,...) that are currently enabled. Empty = all enabled.</description>
+    </key>
+    <key name="first-run-complete" type="b">
+      <default>false</default>
+      <summary>First-run wizard completed</summary>
+      <description>Whether the first-run setup wizard has been completed.</description>
+    </key>
+  </schema>
+</schemalist>

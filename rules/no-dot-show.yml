@@ -1,0 +1,8 @@
+id: no-dot-show
+message: Use .present() instead of .show() on dialogs and windows
+severity: error
+language: TypeScript
+rule:
+  pattern: $X.show()
+note: |
+  .show() is deprecated/inconsistent in GTK4. Use .present() for dialogs and windows.

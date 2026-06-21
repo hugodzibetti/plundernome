@@ -1,0 +1,13 @@
+id: no-as-any
+message: Use 'unknown' narrowing instead of 'as any' cast
+severity: error
+language: TypeScript
+rule:
+  pattern: $X as any
+  not:
+    inside:
+      kind: call_expression
+      stopBy: end
+note: |
+  'as any' defeats type safety. Narrow from 'unknown' instead.
+  Exception: test setup/mock files under __tests__/ directories.

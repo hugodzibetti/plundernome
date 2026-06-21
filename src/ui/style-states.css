@@ -1,0 +1,36 @@
+.search-result-count {
+  font-size: 11px;
+  color: @window_dimmed_fg_color;
+  padding: 0 8px;
+}
+
+.catalog-empty {
+  padding: 48px;
+}
+
+.loading-overlay {
+  background: alpha(@window_bg_color, 0.7);
+  min-width: 48px;
+  min-height: 48px;
+}
+
+.loading-overlay > spinner {
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.error-row {
+  background: alpha(@error_bg_color, 0.1);
+  border-radius: 6px;
+}
+
+.error-row label {
+  color: @error_bg_color;
+}
+
+.nav-shortcut-hint {
+  font-size: 10px;
+  color: @window_dimmed_fg_color;
+  padding: 0 4px;
+  opacity: 0.6;
+}

@@ -1,0 +1,353 @@
+.game-card {
+  margin: 6px;
+  min-width: 200px;
+  border-radius: 12px;
+  background: @card_bg_color;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.08);
+}
+.game-card:focus {
+  outline: 2px solid @accent_bg_color;
+  outline-offset: -2px;
+  border-radius: 12px;
+}
+.game-card .card-cover {
+  border-radius: 8px;
+}
+.game-card .title {
+  font-weight: 600;
+  font-size: 14px;
+}
+.game-card .subtitle {
+  font-size: 12px;
+  color: @window_dimmed_fg_color;
+}
+
+.progress-bar-container {
+  margin: 2px 0;
+}
+.progress-bar-container .name {
+  font-weight: 600;
+}
+.progress-bar-container .details {
+  font-size: 11px;
+  color: @window_dimmed_fg_color;
+}
+.progress-bar-container progressbar {
+  min-height: 6px;
+}
+.progress-bar-container progressbar trough {
+  min-height: 6px;
+  border-radius: 3px;
+}
+.progress-bar-container progressbar trough progress {
+  min-height: 6px;
+  border-radius: 3px;
+  background: @accent_bg_color;
+}
+
+.compat-badge {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.compat-badge.wine {
+  background: @warning_bg_color;
+  color: @warning_fg_color;
+}
+.compat-badge.native {
+  background: @success_bg_color;
+  color: @success_fg_color;
+}
+.compat-badge.proton {
+  background: @accent_bg_color;
+  color: @accent_fg_color;
+}
+
+.sidebar-row {
+  padding: 6px 12px;
+  color: @theme_fg_color;
+}
+.sidebar-row image {
+  margin-right: 4px;
+}
+.sidebar-row:selected image {
+  color: @theme_selected_fg_color;
+}
+
+.catalog-list row {
+  padding: 8px 16px;
+}
+.catalog-list row .badge {
+  background: @accent_bg_color;
+  color: @accent_fg_color;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.catalog-list row .dim-label {
+  font-size: 12px;
+  color: @window_dimmed_fg_color;
+  min-width: 80px;
+}
+
+.library-cover {
+  border-radius: 8px;
+}
+
+.library-sort {
+  min-width: 140px;
+  margin-left: 4px;
+}
+
+.sort-bar {
+  background: @card_bg_color;
+  border-bottom: 1px solid @borders;
+  padding: 4px 8px;
+}
+
+.step-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.step-badge.complete {
+  background: @success_bg_color;
+  color: @success_fg_color;
+}
+.step-badge.active {
+  background: @accent_bg_color;
+  color: @accent_fg_color;
+}
+.step-badge.failed {
+  background: @error_bg_color;
+  color: @error_fg_color;
+}
+
+/* ——— Pipeline Timeline ——— */
+.pipeline-timeline {
+  margin: 2px 0;
+  padding: 2px 8px;
+}
+
+/* ——— Error Dialog ——— */
+.error-dialog {
+  min-width: 400px;
+}
+.error-stack-trace {
+  font-family: monospace;
+  font-size: 11px;
+  padding: 8px;
+}
+.error-dialog-actions {
+  margin-bottom: 6px;
+}
+.error-retry-btn {
+  background: @warning_bg_color;
+  color: @warning_fg_color;
+}
+.error-report-btn {
+  background: @accent_bg_color;
+  color: @accent_fg_color;
+}
+.error-copy-btn {
+  background: @card_bg_color;
+  color: @theme_fg_color;
+}
+
+/* ——— Switches ——— */
+switch {
+  min-width: 44px;
+  min-height: 22px;
+  font-size: 0;
+}
+
+/* ——— Compact icon-only buttons (added by factory when iconName && !label) ——— */
+.action-button {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px;
+}
+
+/* ——— Icon labels in sidebar/rows ——— */
+.icon-label {
+  font-size: 13px;
+  color: @window_dimmed_fg_color;
+}
+
+/* ——— Row action area — prevent overflow with many suffixes ——— */
+.action-row-suffix {
+  min-width: 0;
+}
+
+/* ——— ProtonDB Badge ——— */
+.protondb-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ——— First-run Wizard ——— */
+.welcome-view {
+  padding: 40px;
+}
+.welcome-view .title-1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.welcome-content {
+  padding: 20px 0;
+}
+.welcome-icon {
+  margin-bottom: 8px;
+}
+.welcome-subtitle {
+  font-size: 14px;
+  color: @theme_dim_label_color;
+}
+
+/* ——— Filter Toolbar ——— */
+.filter-bar {
+  background: @card_bg_color;
+  border-bottom: 1px solid @borders;
+  padding: 4px 8px;
+}
+.filter-bar label {
+  font-size: 12px;
+  color: @theme_dim_label_color;
+}
+.filter-bar spinbutton {
+  min-width: 48px;
+}
+.filter-bar dropdown {
+  min-width: 100px;
+}
+
+/* ——— Empty States ——— */
+.empty-state {
+  padding: 60px 20px;
+  color: @theme_dim_label_color;
+}
+.empty-state .empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+.empty-state .empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: @theme_fg_color;
+}
+.empty-state .empty-desc {
+  font-size: 13px;
+  color: @theme_dim_label_color;
+}
+
+/* ——— Source Health Badge ——— */
+.health-badge {
+  font-size: 20px;
+  min-width: 12px;
+  min-height: 12px;
+}
+.health-up {
+  color: @green_5;
+}
+.health-slow {
+  color: @yellow_5;
+}
+.health-down {
+  color: @red_5;
+}
+
+/* ——— Error Log Status Badges ——— */
+.status-success {
+  color: @green_5;
+  font-weight: 600;
+}
+.status-failed {
+  color: @red_5;
+  font-weight: 600;
+}
+.status-skipped {
+  color: @window_dimmed_fg_color;
+  font-weight: 600;
+}
+
+/* ——— Error Log Rows ——— */
+.error-log-row {
+  padding: 4px 0;
+}
+.error-log-message {
+  font-size: 11px;
+  color: @window_dimmed_fg_color;
+  font-family: monospace;
+}
+
+/* ——— Cover Skeleton / Shimmer ——— */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.cover-skeleton {
+  background: linear-gradient(
+    90deg,
+    shade(@card_bg_color, 0.85) 25%,
+    shade(@card_bg_color, 0.95) 50%,
+    shade(@card_bg_color, 0.85) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  min-width: 200px;
+  min-height: 128px;
+  border-radius: 8px;
+}
+
+.cover-loaded {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ——— Wishlist Star ——— */
+.wishlist-star {
+  color: @window_dimmed_fg_color;
+  opacity: 0.5;
+  background: alpha(@theme_bg_color, 0.75);
+  border-radius: 999px;
+  margin: 6px;
+  transition: opacity 150ms ease;
+}
+.wishlist-star:hover {
+  opacity: 0.85;
+  background: alpha(@theme_bg_color, 0.95);
+}
+.wishlist-star-active {
+  color: @warning_bg_color;
+  opacity: 1;
+}

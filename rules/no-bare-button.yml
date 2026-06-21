@@ -1,0 +1,10 @@
+id: no-bare-button
+message: Use createButton() from factory.ts instead of 'new Gtk.Button()'
+severity: error
+language: TypeScript
+rule:
+  pattern: new Gtk.Button($$$)
+note: |
+  Every button must use createButton() from src/ui/factory.ts.
+  This ensures consistent CSS class 'action-button' and click handling.
+  Only factory.ts and factory-widgets.ts are allowed to use the constructor.

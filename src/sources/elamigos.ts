@@ -1,0 +1,25 @@
+import type { SourceDefinition } from '../domain/catalog/types'
+
+export const ELAMIGOS_SOURCE = {
+  id: 'elamigos',
+  name: 'ElAmigos Games',
+  baseUrl: 'https://www.elamigosgamez.net',
+  mirrors: [],
+  scrapeType: 'html',
+  selectors: {
+    gameContainer: '.col-lg-2.col-md-3.col-sm-5.portfolio-item .card',
+    title: 'h6.card-title a',
+    link: 'h6.card-title a',
+    size: '.text-body-secondary',
+    description: 'small',
+    image: 'img.card-img-top',
+    date: '',
+    tags: '',
+  },
+  downloadLinkSelector: "a[href*='mega.nz'], a[href*='drive.google'], a[href*='mediafire'], a[href*='1fichier'], a[href*='uploaded.net']",
+  downloadLinkType: 'direct',
+  downloadLinkContainer: '.entry-content',
+  downloadType: 'direct',
+  updateIntervalMinutes: 360,
+  enabled: true,
+} as const satisfies SourceDefinition

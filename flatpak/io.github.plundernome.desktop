@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Plundernome
+GenericName=Game Download Manager
+Comment=Game repack browser and downloader for Linux
+Exec=plundernome
+Icon=io.github.plundernome
+Categories=Game;
+MimeType=
+Terminal=false
+StartupNotify=true
+DBusActivatable=true

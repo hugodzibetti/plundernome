@@ -1,0 +1,9 @@
+id: no-neg-one-size
+message: set_size_request must have explicit width and height — no -1 placeholder
+severity: error
+language: TypeScript
+rule:
+  pattern: set_size_request(-1, $X)
+note: |
+  Both dimensions must be explicit per LAYOUT.md.
+  set_size_request(-1, height) leaves width to GTK which causes layout glitches.

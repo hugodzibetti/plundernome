@@ -1,0 +1,25 @@
+import type { SourceDefinition } from '../domain/catalog/types'
+
+export const REPACKLAB_SOURCE = {
+  id: 'repacklab',
+  name: 'Repack Lab',
+  baseUrl: 'https://repacklab.com',
+  mirrors: [],
+  scrapeType: 'html',
+  selectors: {
+    gameContainer: 'article, div.post',
+    title: 'h2 a',
+    link: 'h2 a',
+    size: 'span.size, p:contains(\'Size\')',
+    description: 'p',
+    image: 'img',
+    date: 'time, span.date',
+    tags: 'a[rel=tag], .category a',
+  },
+  downloadLinkSelector: "a[href*='magnet:'], a[href*='torrent'], a[href*='repacklab'], a[href*='download']",
+  downloadLinkType: 'direct',
+  downloadLinkContainer: '.entry-content, .post-content',
+  downloadType: 'direct',
+  updateIntervalMinutes: 360,
+  enabled: true,
+} as const satisfies SourceDefinition

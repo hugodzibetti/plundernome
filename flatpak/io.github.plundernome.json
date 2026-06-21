@@ -1,0 +1,105 @@
+{
+  "app-id": "io.github.plundernome",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "48",
+  "sdk": "org.gnome.Sdk",
+  "sdk-extensions": [
+    "org.freedesktop.Sdk.Extension.node22"
+  ],
+  "command": "plundernome",
+  "finish-args": [
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--share=network",
+    "--socket=pulseaudio",
+    "--filesystem=home:ro",
+    "--filesystem=xdg-run/gvfsd",
+    "--env=GDK_BACKEND=wayland,x11"
+  ],
+  "modules": [
+    {
+      "name": "libgxml",
+      "buildsystem": "meson",
+      "config-opts": [
+        "-Ddocs=false",
+        "-Dtests=false",
+        "-Dvapi=false"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://gitlab.gnome.org/GNOME/gxml/-/archive/GXML_0_4_1/gxml-GXML_0_4_1.tar.gz",
+          "sha256": "5c0fcca82b8111b98ac4ed878dc673eab92f8b450685b28cb569e8fe2c2875ec"
+        }
+      ],
+      "cleanup": ["/include", "/lib/pkgconfig", "/share/doc", "/share/man", "/share/gtk-doc"]
+    },
+    {
+      "name": "p7zip",
+      "buildsystem": "simple",
+      "build-commands": [
+        "make -j$(nproc) 7z",
+        "install -Dm755 7z /app/bin/7z"
+      ],
+      "sources": [{
+        "type": "archive",
+        "url": "https://github.com/p7zip-project/p7zip/archive/refs/tags/v17.05.tar.gz",
+        "sha256": "d2788f892571058c08d27095c22154579dfefb807ebe357d145ab2ddddefb1a6"
+      }]
+    },
+    {
+      "name": "transmission-cli",
+      "buildsystem": "simple",
+      "build-commands": [
+        "install -Dm755 usr/bin/transmission-cli /app/bin/transmission-cli",
+        "install -Dm755 usr/bin/transmission-remote /app/bin/transmission-remote",
+        "install -Dm755 usr/bin/transmission-daemon /app/bin/transmission-daemon"
+      ],
+      "sources": [{
+        "type": "archive",
+        "url": "https://github.com/transmission/transmission/releases/download/4.0.6/transmission-4.0.6.tar.xz",
+        "sha256": "2a38fe6d8a23991680b691c277a335f8875bdeca2b97c6b26b598bc9c7b0c45f"
+      }]
+    },
+    {
+      "name": "unrar",
+      "buildsystem": "simple",
+      "build-commands": [
+        "make -C src -j$(nproc)",
+        "install -Dm755 src/unrar /app/bin/unrar"
+      ],
+      "sources": [{
+        "type": "archive",
+        "url": "https://www.rarlab.com/rar/unrarsrc-7.1.4.tar.gz",
+        "sha256": "7f3decbcbf71704ffb3726b9c4e2222f055953310042a9ba0f96b3fb2209971f"
+      }]
+    },
+    {
+      "name": "plundernome",
+      "buildsystem": "simple",
+      "build-options": {
+        "append-path": "/usr/lib/sdk/node22/bin"
+      },
+      "build-commands": [
+        "npm install --no-audit --no-fund",
+        "node scripts/build.mjs",
+        "mkdir -p /app/bin /app/share/plundernome",
+        "install -Dm755 dist/main.js /app/bin/plundernome",
+        "cp src/ui/style.css /app/share/plundernome/style.css",
+        "install -Dm644 flatpak/io.github.plundernome.desktop /app/share/applications/io.github.plundernome.desktop",
+        "install -Dm644 flatpak/io.github.plundernome.metainfo.xml /app/share/metainfo/io.github.plundernome.metainfo.xml",
+        "install -Dm644 io.github.plundernome.gschema.xml /app/share/glib-2.0/schemas/io.github.plundernome.gschema.xml",
+        "glib-compile-schemas /app/share/glib-2.0/schemas/",
+        "install -Dm644 flatpak/icons/io.github.plundernome.svg /app/share/icons/hicolor/scalable/apps/io.github.plundernome.svg",
+        "for s in 64 128; do install -Dm644 flatpak/icons/${s}x${s}/io.github.plundernome.png /app/share/icons/hicolor/${s}x${s}/apps/io.github.plundernome.png; done",
+        "rm -rf node_modules dist"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": ".."
+        }
+      ]
+    }
+  ]
+}
