@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "small_model": "opencode-go/mimo-v2.5",
+  "agent": {
+    "explore": {
+      "model": "opencode-go/kimi-k2.7-code",
+      "description": "Codebase exploration — file searches, pattern matching, directory listings."
+    },
+    "general": {
+      "model": "opencode-go/mimo-v2.5"
+    }
+  }
+}
+
+
