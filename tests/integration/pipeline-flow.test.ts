@@ -266,13 +266,14 @@ describe('reducePipeline error handling', () => {
 });
 
 describe('getPipelineSteps', () => {
-  it('returns all 8 steps in order', () => {
+  it('returns all 9 steps in order', () => {
     const steps = getPipelineSteps();
-    expect(steps).toHaveLength(8);
+    expect(steps).toHaveLength(9);
     expect(steps).toEqual([
       'downloading',
       'verifying',
       'extracting',
+      'running-installer',
       'detecting-deps',
       'installing-deps',
       'finding-exe',
