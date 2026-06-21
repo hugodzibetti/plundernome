@@ -60,7 +60,7 @@ function buildElement(el: FallbackElement): GXmlElement {
       const result: GXmlElement[] = []
       function walk(list: FallbackElement[]) {
         for (const e of list) {
-          if (e.tag === tag) result.push(buildElement(e))
+          if (tag === '*' || e.tag === tag) result.push(buildElement(e))
           walk(e.kids)
         }
       }

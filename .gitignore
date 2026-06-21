@@ -6,3 +6,6 @@ coverage/
 !**/*.test.js
 done-*.md
 .handoffs/
+# Build artifacts
+gschemas.compiled
+scripts/install-dev.sh
