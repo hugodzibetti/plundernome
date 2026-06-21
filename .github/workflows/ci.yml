@@ -34,7 +34,7 @@ jobs:
           bundle: plundernome.flatpak
           manifest-path: flatpak/io.github.plundernome.json
           cache-key: flatpak-builder-${{ github.sha }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: plundernome-flatpak
           path: plundernome.flatpak
