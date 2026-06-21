@@ -500,3 +500,63 @@ switch {
 .appearance-group {
   margin: 6px 0;
 }
+
+/* ——— Emulator Views ——— */
+.emulator-view {
+  padding: 12px;
+}
+.emulator-platform-list {
+  margin: 6px 0;
+}
+.emulator-rom-grid {
+  margin: 6px;
+}
+.emulator-rom-clamp {
+  padding: 6px;
+}
+.emulator-progress-label {
+  margin: 4px 0;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+.emulator-bottom-bar {
+  padding: 8px 12px;
+  border-top: 1px solid @borders;
+}
+.emulator-rom-card {
+  margin: 4px;
+  padding: 8px;
+  min-width: 180px;
+  border-radius: 8px;
+  background: @card_bg_color;
+}
+.emulator-row {
+  padding: 4px 0;
+}
+.emulator-row-icon {
+  margin: 0 8px;
+}
+.emulator-scan-dialog {
+  min-width: 400px;
+}
+.emulator-settings-view {
+  padding: 12px;
+}
+
+/* ——— Big Picture / TV Mode ——— */
+.big-picture { font-size: 1.2em; }
+.big-picture-header { border: none; background: transparent; }
+.big-picture-nav { background: @card_bg_color; border-top: 1px solid @borders; min-height: 64px; }
+.big-picture-nav-btn { min-height: 56px; font-size: 1.1em; font-weight: 600; border-radius: 0; }
+.big-picture-settings { padding: 24px; }
+.big-catalog { padding: 24px; }
+.big-catalog-search { font-size: 1.2em; min-height: 48px; border-radius: 12px; }
+.big-game-card { margin: 8px; min-width: 280px; min-height: 200px; border-radius: 16px; background: @card_bg_color; }
+.big-game-card-cover { min-height: 180px; border-radius: 12px; background: shade(@card_bg_color, 0.85); }
+.big-game-card-icon { font-size: 48px; }
+.big-library { padding: 24px; }
+.big-library-card { margin: 8px; min-width: 280px; min-height: 200px; border-radius: 16px; background: @card_bg_color; }
+.big-library-actions { margin-top: 8px; }
+.big-downloads { padding: 24px; }
+.big-downloads-progress { padding: 8px 0; }
+.big-downloads-pct { font-size: 1.5em; font-weight: 600; }

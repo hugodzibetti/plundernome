@@ -6,6 +6,7 @@ import type { ExtractorService } from './extractor';
 import type { ITorrentService } from './types';
 import type { DependencyInstaller } from './dependency';
 import type { PipelineEvent } from './pipeline-types';
+import type { Launcher } from './launcher';
 import {
   runDownloadStep,
   runMultiPartDownloadStep,
@@ -16,6 +17,8 @@ import {
   runInstallDepsStep,
   runFindExeStep,
   runRegisterStep,
+  runInstallerStep,
+  findInstallerExe,
 } from './pipeline-steps';
 import { isRetryableError, isNonRetryableError, getRetryDelay, MAX_RETRIES } from './pipeline-retry-helpers';
 import { buildMultiPartUrls } from './pipeline-utils';
@@ -24,6 +27,7 @@ export interface DownloadContext {
   db: DatabaseService;
   http: HttpService;
   extractor: ExtractorService;
+  launcher: Launcher | null;
   torrent: ITorrentService | null;
   depInstaller: DependencyInstaller | null;
   gameMirrors: Map<GameID, string[]>;
@@ -187,6 +191,17 @@ export async function runPipelineStep(
         downloadCtx.onDownloadProgress ?? undefined,
       );
       break;
+    case 'running-installer': {
+      if (!downloadCtx.launcher) throw new Error('Launcher not available');
+      const exe = findInstallerExe(installDir);
+      if (!exe) throw new Error('No installer found in install directory');
+      await runInstallerStep(
+        game.id, installDir, exe,
+        downloadCtx.launcher,
+        downloadCtx.onDownloadProgress ?? undefined,
+      );
+      break;
+    }
     case 'detecting-deps': {
       const deps = await runDetectDepsStep(game, installDir);
       stateCtx.pendingDeps.set(game.id, deps);

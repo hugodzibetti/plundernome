@@ -42,9 +42,38 @@ export interface ILibraryView {
   onOpenCatalog(cb: () => void): void;
   onAddToAppMenu(cb: (gameId: string) => void): void;
   onRemoveFromAppMenu(cb: (gameId: string) => void): void;
+  onBackupSave(cb: (gameId: string) => void): void;
+  onRestoreSave(cb: (gameId: string) => void): void;
   setSortKey(key: string): void;
   onSortChanged(cb: (key: string) => void): void;
   getPlaytimeSummary(): string;
+  onAchievements(cb: (gameId: string) => void): void;
+  onGameLaunched(cb: (gameId: string) => void): void;
+}
+
+export interface EmulatorDetectResult {
+  platformId: string
+  binaryPath: string
+  version?: string
+  source: string
+}
+
+export interface ScannedROM {
+  id: string
+  path: string
+  name: string
+  platformId: string
+  sizeBytes: number
+  lastModified: string
+}
+
+export interface IEmulatorView {
+  setPlatforms(platforms: EmulatorDetectResult[]): void
+  setROMs(roms: ScannedROM[]): void
+  setScanProgress(current: number, total: number): void
+  onScanROMS(cb: (folderPath: string) => void): void
+  onLaunchROM(cb: (romId: string) => void): void
+  onOpenSettings(cb: () => void): void
 }
 
 export interface IDownloadsView {

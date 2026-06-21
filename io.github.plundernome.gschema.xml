@@ -53,5 +53,20 @@
       <summary>First-run wizard completed</summary>
       <description>Whether the first-run setup wizard has been completed.</description>
     </key>
+    <key name="webdav-url" type="s">
+      <default>''</default>
+      <summary>WebDAV server URL</summary>
+      <description>URL of the WebDAV server for cloud save sync.</description>
+    </key>
+    <key name="webdav-user" type="s">
+      <default>''</default>
+      <summary>WebDAV username</summary>
+      <description>Username for WebDAV authentication.</description>
+    </key>
+    <key name="webdav-pass" type="s">
+      <default>''</default>
+      <summary>WebDAV password</summary>
+      <description>Password for WebDAV authentication.</description>
+    </key>
   </schema>
 </schemalist>

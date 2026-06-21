@@ -148,3 +148,56 @@ export interface SourceHealth {
 }
 export type { IWineManager, WineVersion, INotificationService } from './wine-types'
 export type { IExtractorService, ExtractProgressFn, ExtractResult } from './extract-types'
+
+// === Metadata Types ===
+export interface IMetadataService {
+  enrich(gameId: string, name: string, sourceGameId?: string): Promise<import('../domain/metadata/types').EnrichedMetadata | null>
+  getCached(gameId: string): Promise<import('../domain/metadata/types').EnrichedMetadata | null>
+}
+
+// === Emulator Types ===
+export interface IEmulatorDetector {
+  detectAll(): Promise<import('../domain/emulator/types').EmulatorConfig[]>
+  detectBinary(binaryName: string): Promise<string | null>
+  detectEmulator(platformId: import('../domain/emulator/types').PlatformID): Promise<string | null>
+}
+
+export interface IROMScanner {
+  scanFolder(path: string): Promise<import('../domain/emulator/types').ROMEntry[]>
+  scanAllFolders(folders: string[]): Promise<import('../domain/emulator/types').ROMEntry[]>
+}
+
+export interface IEmulatorLauncher {
+  launch(romPath: string, platformId: import('../domain/emulator/types').PlatformID, emulatorPath: string): Promise<import('./types').LaunchResult>
+  launchWithConfig(romEntry: import('../domain/emulator/types').ROMEntry, config: import('../domain/emulator/types').EmulatorConfig): Promise<import('./types').LaunchResult>
+}
+
+export interface IBIOSDetector {
+  check(path: string): Promise<import('../domain/emulator/types').BIOSInfo[]>
+  verifyChecksum(filePath: string): Promise<boolean>
+}
+
+// === Cloud Save Types ===
+export interface ICloudSaveService {
+  backup(gameId: string): Promise<import('../domain/cloud-save/types').SaveManifest | null>
+  restore(manifest: import('../domain/cloud-save/types').SaveManifest): Promise<boolean>
+  listSaves(gameId?: string): Promise<import('../domain/cloud-save/types').SaveManifest[]>
+  syncToWebdav(manifest: import('../domain/cloud-save/types').SaveManifest): Promise<boolean>
+  syncFromWebdav(): Promise<import('../domain/cloud-save/types').SaveManifest[]>
+}
+
+// === Achievement Types ===
+export interface IAchievementService {
+  scanGame(gameId: string, installPath: string): Promise<import('../domain/achievements/types').AchievementSet>
+  fetchSteamAchievements(appId: number): Promise<import('../domain/achievements/types').Achievement[]>
+  getAll(gameId: string): Promise<import('../domain/achievements/types').AchievementSet | null>
+}
+
+// === Steam Types ===
+export interface ISteamService {
+  scanLibrary(): Promise<import('../domain/steam/types').SteamLibraryFolder[]>
+  importApp(gameId: string, appId: number): Promise<void>
+  createShortcut(shortcut: import('../domain/steam/types').SteamShortcut): Promise<boolean>
+  removeShortcut(appId: number): Promise<boolean>
+  fetchAchievements(appId: number): Promise<import('../domain/achievements/types').Achievement[]>
+}

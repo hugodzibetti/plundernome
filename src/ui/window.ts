@@ -2,7 +2,7 @@ import { setupWindowShortcuts } from './shortcuts'
 import { PAGE_DEFS, type PageDef } from './window-page-defs'
 import { loadAppCss } from './window-css'
 import { buildSidebarAndPages } from './window-page-builder'
-import type { ICatalogView, ILibraryView, IDownloadsView, ISettingsView } from '../controller/view-interfaces'
+import type { ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IEmulatorView } from '../controller/view-interfaces'
 import { createButton } from './factory'
 import { WelcomeView } from './views/welcome-view'
 import { SettingsManager, GSETTINGS_KEYS } from '../services/gsettings'
@@ -21,6 +21,7 @@ export const PlundernomeWindow = GObject.registerClass({
   private libraryView: ILibraryView | null = null
   private downloadsView: IDownloadsView | null = null
   private settingsView: ISettingsView | null = null
+  private emulatorView: IEmulatorView | null = null
 
   constructor(app: unknown) {
     super({ application: app, title: 'Plundernome', default_width: 960, default_height: 560 })
@@ -36,12 +37,13 @@ export const PlundernomeWindow = GObject.registerClass({
     this.header.pack_start(searchBtn)
     toolbar.add_top_bar(this.header)
 
-    const { sidebar, stack: pageStack, catalogView, libraryView, downloadsView, settingsView } = buildSidebarAndPages((id) => this.navigateTo(id))
+    const { sidebar, stack: pageStack, catalogView, libraryView, downloadsView, settingsView, emulatorView } = buildSidebarAndPages((id) => this.navigateTo(id))
     this.stack = pageStack
     this.catalogView = catalogView
     this.libraryView = libraryView
     this.downloadsView = downloadsView
     this.settingsView = settingsView
+    this.emulatorView = emulatorView
 
     const sidebarPage = new Adw.NavigationPage({ title: 'Plundernome', child: sidebar })
     this.contentNavPage = new Adw.NavigationPage({ title: 'Catalog', child: this.stack })
@@ -136,4 +138,5 @@ export const PlundernomeWindow = GObject.registerClass({
   getLibraryView(): ILibraryView { return this.libraryView!; }
   getDownloadsView(): IDownloadsView { return this.downloadsView!; }
   getSettingsView(): ISettingsView { return this.settingsView!; }
+  getEmulatorsView(): IEmulatorView { return this.emulatorView!; }
 })

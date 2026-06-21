@@ -82,6 +82,7 @@ function stepLabel(step: PipelineStep): string {
     downloading: _t('pipeline.download'),
     verifying: _t('pipeline.verify'),
     extracting: _t('pipeline.extract'),
+    'running-installer': _t('pipeline.run-installer'),
     'detecting-deps': _t('pipeline.deps'),
     'installing-deps': _t('pipeline.install'),
     'finding-exe': _t('pipeline.find-exe'),

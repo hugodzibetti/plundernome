@@ -13,4 +13,5 @@ export interface ControllerDeps {
   downloadsView: IDownloadsView
   settingsView: ISettingsView
   window: IWindow
+  emulatorsView: import('./view-interfaces').IEmulatorView
 }

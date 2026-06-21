@@ -436,6 +436,7 @@ interface GioFile {
   make_symbolic_link(target: string, cancellable: unknown): void;
   enumerate_children(attributes: string, flags: number, cancellable: unknown): GioFileEnumerator;
   get_name(): string;
+  load_contents(cancellable: unknown): [boolean, Uint8Array | null, string];
 }
 
 interface GioFileOutputStream {

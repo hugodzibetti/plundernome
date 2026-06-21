@@ -83,6 +83,7 @@ export class PipelineOrchestrator {
       db: this.db,
       http: this.http,
       extractor: this.extractor,
+      launcher: null,
       torrent: this.torrent,
       depInstaller: this.depInstaller,
       gameMirrors: this.gameMirrors,

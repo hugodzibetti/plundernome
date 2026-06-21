@@ -2,6 +2,7 @@ import { CatalogView } from './views/catalog-view'
 import { DownloadsView } from './views/downloads-view'
 import { LibraryView } from './views/library-view'
 import { SettingsView } from './views/settings-view'
+import { EmulatorView } from './views/emulator-view'
 import type { ICatalogView, ILibraryView, IWindow } from '../controller/view-interfaces'
 import { createButton, createToggleButton } from './factory'
 
@@ -38,4 +39,6 @@ export const PAGE_DEFS: PageDef[] = [
     headerSuffix: (win) => buildLibraryImportBtn(win.getLibraryView()) },
   { label: 'Settings', id: 'settings', iconName: 'preferences-system-symbolic',
     factory: () => new SettingsView() },
+  { label: 'Emulators/ROMs', id: 'emulators', iconName: 'applications-games-symbolic',
+    factory: () => new EmulatorView() },
 ]

@@ -6,6 +6,7 @@ export type PipelineStep =
   | 'downloading'
   | 'verifying'
   | 'extracting'
+  | 'running-installer'
   | 'detecting-deps'
   | 'installing-deps'
   | 'finding-exe'

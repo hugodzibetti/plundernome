@@ -4,6 +4,7 @@ import type { SourceDefinition } from '../domain/catalog/types';
 import type { GameRow } from '../services/types';
 import type { LogFilter } from '../services/database';
 import type { ProtonDBRating } from '../services/protondb';
+import type { EmulatorConfig, ROMEntry } from '../domain/emulator/types';
 import {
   HttpService,
   DatabaseService,
@@ -17,7 +18,11 @@ import {
   DependencyInstaller,
   SettingsManager,
   GSETTINGS_KEYS,
+  MetadataProvider,
+  SteamService,
+  CloudSaveService,
 } from '../services';
+import { EmulatorDetector, ROMScanner, EmulatorLauncher } from '../services/emulator';
 import { HtmlParserServiceNew2 } from '../services/html-parser-new2';
 import { detectCompat } from '../domain/compat/detector';
 import { loadSourceDefinitions } from './source-loader';
@@ -31,6 +36,9 @@ import { wireWishlist } from './wishlist-wirer';
 import { wireSources, wireBackup } from './settings-wirer';
 import { wirePipelineEvents } from './pipeline-wirer';
 import { fetchProtonRatingsBg, startHealthChecks } from './health-wirer';
+import { wireMetadataEnrichment } from './metadata-wirer';
+import { wireSteamImport } from './steam-wirer';
+import { wireCloudSave } from './cloud-save-wirer';
 import { GjsSystem } from './system';
 import type { ISystem } from './system';
 
@@ -49,6 +57,14 @@ export class AppController implements IAppController {
   private protonRatings = new Map<string, ProtonDBRating>();
   private downloadHandler: (gameId: string) => void;
   private sys: ISystem;
+  private metadataProvider: MetadataProvider;
+  private emulatorDetector: EmulatorDetector;
+  private romScanner: ROMScanner;
+  private emulatorLauncher: EmulatorLauncher;
+  private steamService: SteamService;
+  private cloudSaveService: CloudSaveService;
+  private detectedEmulators: EmulatorConfig[] = [];
+  private scannedROMs: ROMEntry[] = [];
 
   constructor(private deps: ControllerDeps) {
     this.sys = new GjsSystem();
@@ -63,6 +79,12 @@ export class AppController implements IAppController {
       depInstaller: new DependencyInstaller(),
     });
     this.protonDB = new ProtonDB((url) => this.http.fetch(url).then((r) => ({ status: r.status, body: r.body })));
+    this.metadataProvider = new MetadataProvider(this.http);
+    this.emulatorDetector = new EmulatorDetector();
+    this.romScanner = new ROMScanner();
+    this.emulatorLauncher = new EmulatorLauncher(this.db);
+    this.steamService = new SteamService(this.db);
+    this.cloudSaveService = new CloudSaveService(this.http, this.db);
     try {
       const s = new SettingsManager();
       const dlDir = s.getString(GSETTINGS_KEYS.INSTALL_PATH) || `${this.sys.getHomeDir()}/Downloads/plundernome`;
@@ -118,6 +140,7 @@ export class AppController implements IAppController {
       );
       await startHealthChecks(this.http, this.sources, this.deps.settingsView, this.deps.window, this.healthTimers);
       this.wireErrorLog();
+      this.wireAllFeatures();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       this.deps.window.showToast(`Init error: ${msg}`, 'high');
@@ -203,5 +226,63 @@ export class AppController implements IAppController {
     });
     this.db.getPipelineLogs({ limit: 100 }).then((entries) => this.deps.settingsView.setLogEntries(entries));
     this.db.getLogGameIds().then((ids) => this.deps.settingsView.setLogGameIds(ids));
+  }
+  private wireAllFeatures(): void {
+    wireMetadataEnrichment(this.metadataProvider, this.allGames, this.deps.catalogView);
+    wireSteamImport(this.steamService, this.deps.libraryView, this.db);
+    wireCloudSave(this.cloudSaveService, this.deps.libraryView, this.deps.window);
+    this.deps.libraryView.onAchievements(async (gameId: string) => {
+      const game = await this.db.getGame(gameId);
+      if (!game) return;
+      this.deps.window.showToast(`Achievements: ${game.name} — coming soon`);
+    });
+    this.wireEmulatorDetection();
+    this.wireEmulatorScan();
+    this.wireEmulatorLaunch();
+  }
+  private wireEmulatorDetection(): void {
+    const { GLib } = imports.gi;
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => {
+      this.emulatorDetector.detectAll().then((configs) => {
+        this.detectedEmulators = configs;
+        const results = configs.map((c) => ({
+          platformId: c.platformId,
+          binaryPath: c.emulatorPath,
+          source: 'system',
+        }));
+        this.deps.emulatorsView.setPlatforms(results);
+      });
+      return false;
+    });
+  }
+  private wireEmulatorScan(): void {
+    this.deps.emulatorsView.onScanROMS((folderPath: string) => {
+      this.romScanner.scanFolder(folderPath).then((roms) => {
+        this.scannedROMs = roms;
+        this.deps.emulatorsView.setROMs(roms);
+        this.deps.window.showToast(`Found ${roms.length} ROMs in folder`);
+      });
+    });
+  }
+  private wireEmulatorLaunch(): void {
+    this.deps.emulatorsView.onLaunchROM((romId: string) => {
+      const rom = this.scannedROMs.find((r) => r.id === romId);
+      if (!rom) {
+        this.deps.window.showToast('ROM not found', 'high');
+        return;
+      }
+      const config = this.detectedEmulators.find((c) => c.platformId === rom.platformId);
+      if (!config) {
+        this.deps.window.showToast('No emulator found for platform', 'high');
+        return;
+      }
+      this.emulatorLauncher.launchWithConfig(rom, config).then((result) => {
+        if (result.success) {
+          this.deps.window.showToast(`Launched ${rom.name}`);
+        } else {
+          this.deps.window.showToast(`Launch failed: ${result.errorMessage ?? 'unknown'}`, 'high');
+        }
+      });
+    });
   }
 }

@@ -108,9 +108,41 @@ export class DatabaseService implements IDatabaseService {
       } catch {}
       await this.execute('INSERT INTO schema_version (version) VALUES (//1)', [6]);
     }
+    if (cur < 7) {
+      await this.execute(
+        `CREATE TABLE IF NOT EXISTS save_manifests (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          game_id TEXT NOT NULL,
+          game_name TEXT NOT NULL,
+          manifest_json TEXT NOT NULL,
+          backup_time TEXT NOT NULL,
+          tool TEXT NOT NULL DEFAULT 'manual',
+          FOREIGN KEY (game_id) REFERENCES games(id)
+        )`,
+      )
+      await this.execute('INSERT INTO schema_version (version) VALUES (//1)', [7])
+    }
     await this.execute(
       "CREATE TABLE IF NOT EXISTS pipeline_state (game_id TEXT PRIMARY KEY, step TEXT NOT NULL, status TEXT NOT NULL, progress REAL DEFAULT 0, error_message TEXT, updated_at TEXT DEFAULT (datetime('now')), FOREIGN KEY (game_id) REFERENCES games(id))",
     );
+    if (cur < 8) {
+      await this.execute(
+        `CREATE TABLE IF NOT EXISTS game_achievements (
+          id TEXT PRIMARY KEY,
+          game_id TEXT NOT NULL,
+          name TEXT NOT NULL,
+          description TEXT,
+          icon_url TEXT,
+          unlocked INTEGER DEFAULT 0,
+          unlocked_at TEXT,
+          source TEXT NOT NULL DEFAULT 'file-scan',
+          steam_api_name TEXT,
+          hidden INTEGER DEFAULT 0,
+          FOREIGN KEY (game_id) REFERENCES games(id)
+        )`,
+      );
+      await this.execute('INSERT INTO schema_version (version) VALUES (//1)', [8])
+    }
   }
 
   async insertGame(game: Game): Promise<void> {
@@ -216,6 +248,27 @@ export class DatabaseService implements IDatabaseService {
   async getWishlisted(): Promise<GameID[]> {
     const rows = await this.query<{ id: GameID }>('SELECT id FROM games WHERE wishlisted = 1');
     return rows.map((r) => r.id);
+  }
+
+  async getAchievements(gameId: string): Promise<import('../domain/achievements/types').Achievement[] | null> {
+    const rows = await this.query<{
+      id: string; game_id: string; name: string; description: string | null
+      icon_url: string | null; unlocked: number; unlocked_at: string | null
+      source: string; steam_api_name: string | null; hidden: number
+    }>('SELECT * FROM game_achievements WHERE game_id = //1', [gameId])
+    if (rows.length === 0) return null
+    return rows.map(r => ({
+      id: r.id,
+      gameId: r.game_id,
+      name: r.name,
+      description: r.description ?? undefined,
+      iconUrl: r.icon_url ?? undefined,
+      unlocked: r.unlocked === 1,
+      unlockedAt: r.unlocked_at ?? undefined,
+      source: r.source as import('../domain/achievements/types').Achievement['source'],
+      steamApiName: r.steam_api_name ?? undefined,
+      hidden: r.hidden === 1,
+    }))
   }
 
   async savePipelineState(

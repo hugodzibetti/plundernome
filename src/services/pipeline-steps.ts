@@ -5,6 +5,7 @@ import type { HttpService } from './http'
 import type { ExtractorService } from './extractor'
 import type { ITorrentService } from './types'
 import type { DependencyInstaller } from './dependency'
+import type { Launcher } from './launcher'
 
 export async function runDownloadStep(
   game: Game, url: string, dest: string,
@@ -146,4 +147,36 @@ export async function runRegisterStep(
     const env = { ...existing.env, exePath }
     await db.setLaunchOptions(gameId, env, existing.args)
   }
+}
+
+export function findInstallerExe(dir: string): string | null {
+  const { Gio } = imports.gi
+  const e = Gio.File.new_for_path(dir).enumerate_children('standard::name', Gio.FileQueryInfoFlags.NONE, null)
+  let info
+  const re = [/^setup_.*\.exe$/i, /\.setup\.exe$/i, /^gog_installer.*\.exe$/i]
+  while ((info = e.next_file(null)) !== null) {
+    const n = info.get_name()
+    if (re.some(p => p.test(n))) return `${dir}/${n}`
+  }
+  return null
+}
+
+export async function runInstallerStep(
+  gameId: GameID, installDir: string, installerPath: string,
+  launcher: Launcher,
+  onProgress?: (gameId: GameID, step: PipelineStep, current: number, total: number) => void,
+): Promise<void> {
+  const { GLib } = imports.gi
+  onProgress?.(gameId, 'running-installer', 0, 100)
+  if (!GLib.find_program_in_path('wine')) throw new Error('Wine not found')
+  const prefix = `${GLib.get_home_dir()}/.local/share/plundernome/prefixes/${gameId}`
+  const cmd = `WINEPREFIX="${prefix}" wine "${installerPath}" /SILENT /SUPPRESSMSGBOXES /DIR="C:\\install"`
+  onProgress?.(gameId, 'running-installer', 25, 100)
+  const [, pid] = GLib.spawn_async(null, ['/bin/sh', '-c', cmd], null,
+    GLib.G_SPAWN_DEFAULT | GLib.G_SPAWN_SEARCH_PATH | GLib.G_SPAWN_LEAVE_DESCRIPTORS_OPEN | GLib.G_SPAWN_DO_NOT_REAP_CHILD, null)
+  onProgress?.(gameId, 'running-installer', 50, 100)
+  await new Promise<void>((res, rej) => {
+    GLib.child_watch_add(pid, (_p, s) => s === 0 ? res() : rej(new Error(`Installer exited with code ${s}`)))
+  })
+  onProgress?.(gameId, 'running-installer', 100, 100)
 }

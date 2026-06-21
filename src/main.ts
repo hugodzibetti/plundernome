@@ -1,7 +1,10 @@
 import { PlundernomeWindow } from './ui/window';
+import { BigPictureApp } from './ui/big-picture/window';
 import { AppController } from './controller';
 import { SettingsManager, GSETTINGS_KEYS } from './services/gsettings';
 import { initTranslations } from './domain/translations';
+
+declare const ARGV: string[] | undefined;
 
 const gi = imports.gi;
 gi.versions.Gtk = '4.0';
@@ -46,6 +49,7 @@ export const PlundernomeApp = GObject.registerClass(
         libraryView: win.getLibraryView(),
         downloadsView: win.getDownloadsView(),
         settingsView: win.getSettingsView(),
+        emulatorsView: win.getEmulatorsView(),
         window: win,
       });
       this.controller.init();
@@ -57,6 +61,11 @@ export const PlundernomeApp = GObject.registerClass(
 function start(): void {
   const Adw = imports.gi.Adw;
   Adw.init();
+  if (ARGV?.includes('--big-picture')) {
+    const app = new BigPictureApp();
+    app.run([imports.gi.GLib.get_prgname()]);
+    return;
+  }
   const app = new PlundernomeApp();
   app.run([imports.gi.GLib.get_prgname()]);
 }

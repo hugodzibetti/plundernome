@@ -3,7 +3,7 @@ import type { Dependency } from '../domain/types-extras';
 import type { DatabaseService } from './database';
 import type { ITorrentService } from './types';
 import { createInitialPipelineState } from '../domain/models';
-import { runDownloadStep } from './pipeline-steps';
+import { runDownloadStep, findInstallerExe } from './pipeline-steps';
 import { executeWithRetry, runPipelineStep } from './pipeline-step-runner';
 import type { DownloadContext, StateContext } from './pipeline-step-runner';
 
@@ -30,6 +30,10 @@ export async function isStepRequired(
   if (step === 'extracting') {
     const ext = installDir.toLowerCase();
     return /\.(zip|rar|7z|tar\.gz|tar\.xz|tar\.bz2)$/.test(ext);
+  }
+  if (step === 'running-installer') {
+    const extractedDir = installDir.replace(/\.(zip|rar|7z|tar\.gz|tar\.xz|tar\.bz2)$/, '')
+    return findInstallerExe(extractedDir) !== null
   }
   return true;
 }

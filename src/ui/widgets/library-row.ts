@@ -16,6 +16,9 @@ export function buildGameRow(
   protonRating?: ProtonDBRating,
   addToAppMenuHandler?: (gameId: string) => void,
   removeFromAppMenuHandler?: (gameId: string) => void,
+  backupHandler?: (gameId: string) => void,
+  restoreHandler?: (gameId: string) => void,
+  achievementsHandler?: (gameId: string) => void,
 ): AdwActionRow {
   const row = new Adw.ActionRow({ title: game.name });
   row.set_data('gameId', game.id);
@@ -39,6 +42,15 @@ export function buildGameRow(
   }
   if (parts.length > 0) row.set_subtitle(parts.join(' \u2014 '));
   row.add_suffix(new CompatBadge(profile, protonRating));
+  if (achievementsHandler) {
+    row.add_suffix(
+      createButton({
+        iconName: 'starred-symbolic',
+        tooltip: _t('library.achievements'),
+        onClick: () => achievementsHandler(game.id),
+      }),
+    );
+  }
   row.add_suffix(
     createButton({
       iconName: 'settings-symbolic',
@@ -75,11 +87,15 @@ export function buildGameRow(
     },
   });
   row.add_suffix(removeBtn);
-  if ((addToAppMenuHandler || removeFromAppMenuHandler) && game.installPath) {
+  if ((addToAppMenuHandler || removeFromAppMenuHandler || backupHandler || restoreHandler) && game.installPath) {
     const gesture = new Gtk.GestureClick();
     gesture.set_button(3);
     gesture.connect('pressed', () => {
       const items: Array<{ label: string; onClick: () => void }> = [];
+      if (backupHandler)
+        items.push({ label: 'Backup Saves', onClick: () => backupHandler(game.id) });
+      if (restoreHandler)
+        items.push({ label: 'Restore Saves', onClick: () => restoreHandler(game.id) });
       if (addToAppMenuHandler)
         items.push({ label: _t('library.add-to-app-menu'), onClick: () => addToAppMenuHandler(game.id) });
       if (removeFromAppMenuHandler)

@@ -38,6 +38,9 @@ export const LibraryView = GObject.registerClass(
     private sortDropdown: GtkDropDown;
     private addToAppMenuHandler: ((gameId: string) => void) | null = null;
     private removeFromAppMenuHandler: ((gameId: string) => void) | null = null;
+    private backupHandler: ((gameId: string) => void) | null = null;
+    private restoreHandler: ((gameId: string) => void) | null = null;
+    private achievementsHandler: ((gameId: string) => void) | null = null;
     private sortChangedHandler: ((key: string) => void) | null = null;
     private cachedGames: LibraryEntry[] = [];
 
@@ -138,6 +141,9 @@ export const LibraryView = GObject.registerClass(
             protonRating,
             this.addToAppMenuHandler ?? undefined,
             this.removeFromAppMenuHandler ?? undefined,
+            this.backupHandler ?? undefined,
+            this.restoreHandler ?? undefined,
+            this.achievementsHandler ?? undefined,
           ),
         );
       }
@@ -185,6 +191,15 @@ export const LibraryView = GObject.registerClass(
     }
     onRemoveFromAppMenu(cb: (gameId: string) => void): void {
       this.removeFromAppMenuHandler = cb;
+    }
+    onBackupSave(cb: (gameId: string) => void): void {
+      this.backupHandler = cb;
+    }
+    onRestoreSave(cb: (gameId: string) => void): void {
+      this.restoreHandler = cb;
+    }
+    onAchievements(cb: (gameId: string) => void): void {
+      this.achievementsHandler = cb;
     }
 
     getPlaytimeSummary(): string {

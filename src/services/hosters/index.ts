@@ -1,0 +1,5 @@
+export { scrapeHosterUrl as scrapeGofile } from './gofile'
+export { scrapeHosterUrl as scrapeMediafire } from './mediafire'
+export { scrapeHosterUrl as scrapePixeldrain } from './pixeldrain'
+export { scrapeHosterUrl as scrapeDatanodes } from './datanodes'
+export { scrapeHosterUrl as scrapeFuckingfast } from './fuckingfast'

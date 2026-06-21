@@ -196,7 +196,7 @@ describe('Pipeline reducer', () => {
 describe('getPipelineSteps', () => {
   it('returns steps in order', () => {
     const steps = getPipelineSteps()
-    expect(steps).toHaveLength(8)
+    expect(steps).toHaveLength(9)
     expect(steps[0]).toBe('downloading')
     expect(steps[steps.length - 1]).toBe('completed')
   })

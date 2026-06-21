@@ -1,5 +1,5 @@
 import { PAGE_DEFS } from './window-page-defs'
-import type { ICatalogView, ILibraryView, IDownloadsView, ISettingsView } from '../controller/view-interfaces'
+import type { ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IEmulatorView } from '../controller/view-interfaces'
 
 const { Gtk } = imports.gi
 
@@ -10,6 +10,7 @@ export type PageBuilderResult = {
   libraryView: ILibraryView | null
   downloadsView: IDownloadsView | null
   settingsView: ISettingsView | null
+  emulatorView: IEmulatorView | null
 }
 
 export function buildSidebarAndPages(
@@ -27,6 +28,7 @@ export function buildSidebarAndPages(
   let libraryView: ILibraryView | null = null
   let downloadsView: IDownloadsView | null = null
   let settingsView: ISettingsView | null = null
+  let emulatorView: IEmulatorView | null = null
 
   for (const def of PAGE_DEFS) {
     const row = new Gtk.ListBoxRow({ css_classes: ['sidebar-row'], name: def.id })
@@ -47,9 +49,11 @@ export function buildSidebarAndPages(
     } else if (def.id === 'library') {
       libraryView = view as ILibraryView
       libraryView.onOpenCatalog(() => navigateTo('catalog'))
+    } else if (def.id === 'emulators') {
+      emulatorView = view as IEmulatorView
     }
     stack.add_named(view, def.id)
   }
 
-  return { sidebar, stack, catalogView, libraryView, downloadsView, settingsView }
+  return { sidebar, stack, catalogView, libraryView, downloadsView, settingsView, emulatorView }
 }
