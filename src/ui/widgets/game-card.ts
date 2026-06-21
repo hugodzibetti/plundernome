@@ -6,6 +6,32 @@ import type { GameCardCoverWidget } from './game-card-cover';
 
 const { Gtk, Adw, GObject } = imports.gi;
 
+export function renderGameToBox(
+  game: Game,
+  flowBox: GtkFlowBox,
+  listBox: GtkListBox,
+  downloadHandler: ((gameId: string) => void) | null,
+  detailHandler?: ((gameId: string) => void) | null,
+  coverPath?: string,
+  wishlistHandler?: ((gameId: string, wishlisted: boolean) => void) | null,
+): void {
+  const card = new GameCard(game, coverPath)
+  const emitPlay = () => downloadHandler?.(game.id)
+  card.connect('play-game', (_w: unknown, id: unknown) => downloadHandler?.(id as string))
+  card.connect('show-detail', (_w: unknown, id: unknown) => detailHandler?.(id as string))
+  if (wishlistHandler) card.onToggleWishlist((id, wl) => wishlistHandler(id, wl))
+  flowBox.append(card)
+
+  const listRow = new Adw.ActionRow({ title: game.name, subtitle: game.size })
+  listRow.connect('activated', emitPlay)
+  const dlBtn = createButton({ iconName: 'folder-download-symbolic', tooltip: _t('common.download'), onClick: emitPlay })
+  listRow.add_suffix(dlBtn)
+  const sourceLabel = new Gtk.Label({ label: game.sourceId })
+  sourceLabel.add_css_class('badge')
+  listRow.add_suffix(sourceLabel)
+  listBox.append(listRow)
+}
+
 export const GameCard = GObject.registerClass(
   {
     GTypeName: 'GameCard',

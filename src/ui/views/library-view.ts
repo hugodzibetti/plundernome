@@ -1,19 +1,10 @@
-import { buildGameRow } from '../widgets/library-row';
-import type { Game, CompatProfile } from '../../domain/models';
+import { renderGameRows, type LibraryEntry } from '../widgets/library-row';
 import { _t } from '../../domain/i18n';
 import { createButton, createFilePicker } from '../factory';
 import { createSortDropdown, sortEntries, SORT_OPTS, type SortKey } from './library-sort';
 import { computePlaytimeSummary, formatPlaytimeSummary } from './library-playtime';
 import { createScrollContent } from '../templates/scroll-content';
 import { buildEmptyState } from '../templates/empty-state';
-
-interface LibraryEntry {
-  game: Game & { installPath?: string };
-  profile: CompatProfile;
-  playtime?: number;
-  launchOptions?: { env: Record<string, string>; args: string };
-  protonRating?: 'platinum' | 'gold' | 'silver' | 'bronze' | 'borked' | 'pending';
-}
 
 const { Gtk, Adw, GObject } = imports.gi;
 
@@ -59,7 +50,7 @@ export const LibraryView = GObject.registerClass(
       );
       this.sortDropdown = createSortDropdown((key) => {
         this.sortKey = key;
-        this.applySort();
+        this.renderGames();
         this.sortChangedHandler?.(key);
       });
       headerBox.append(this.sortDropdown);
@@ -103,12 +94,7 @@ export const LibraryView = GObject.registerClass(
     showImportDialog(): void {
       const win = this.get_native() as GtkWidget | null;
       if (!win) return;
-      createFilePicker({
-        action: 'select-folder',
-        title: _t('library.select-folder'),
-        parent: win,
-        onSelect: (path) => this.importHandler?.(path),
-      });
+      createFilePicker({ action: 'select-folder', title: _t('library.select-folder'), parent: win, onSelect: (p) => this.importHandler?.(p) });
     }
 
     setGames(games: LibraryEntry[]): void {
@@ -117,93 +103,44 @@ export const LibraryView = GObject.registerClass(
     }
 
     private renderGames(): void {
-      let row = this.listBox.get_first_child() as GtkWidget | null;
-      while (row) {
-        const next = row.get_next_sibling();
-        this.listBox.remove(row);
-        row = next as GtkWidget | null;
-      }
       const sorted = sortEntries(this.cachedGames, this.sortKey);
       if (sorted.length === 0) {
         this.stack.set_visible_child(this.emptyPage);
         return;
       }
       this.stack.set_visible_child(this.libraryClamp);
-      for (const { game, profile, playtime, protonRating } of sorted) {
-        this.listBox.append(
-          buildGameRow(
-            game,
-            profile,
-            playtime,
-            this.launchOptionsHandler!,
-            this.playHandler!,
-            this.removeHandler!,
-            protonRating,
-            this.addToAppMenuHandler ?? undefined,
-            this.removeFromAppMenuHandler ?? undefined,
-            this.backupHandler ?? undefined,
-            this.restoreHandler ?? undefined,
-            this.achievementsHandler ?? undefined,
-          ),
-        );
-      }
-    }
-
-    private applySort(): void {
-      this.renderGames();
-    }
-
-    refreshLibrary(): void {
-      this.refreshHandler?.();
+      renderGameRows(
+        this.listBox, sorted,
+        this.launchOptionsHandler!, this.playHandler!, this.removeHandler!,
+        this.addToAppMenuHandler ?? undefined,
+        this.removeFromAppMenuHandler ?? undefined,
+        this.backupHandler ?? undefined,
+        this.restoreHandler ?? undefined,
+        this.achievementsHandler ?? undefined,
+      );
     }
 
     getSelectedGameId(): string | null {
       const row = this.listBox.get_selected_row() as GtkWidget | null;
       return (row?.get_data?.('gameId') as string) ?? null;
     }
-
-    triggerPlay(gameId: string): void {
-      this.playHandler?.(gameId);
-    }
-    triggerRemove(gameId: string): void {
-      this.removeHandler?.(gameId);
-    }
-    onPlayGame(cb: (gameId: string) => void): void {
-      this.playHandler = cb;
-    }
-    onRemoveGame(cb: (gameId: string) => void): void {
-      this.removeHandler = cb;
-    }
-    onLaunchOptions(cb: (gameId: string) => void): void {
-      this.launchOptionsHandler = cb;
-    }
-
+    triggerPlay(gameId: string): void { this.playHandler?.(gameId); }
+    triggerRemove(gameId: string): void { this.removeHandler?.(gameId); }
+    onPlayGame(cb: (gameId: string) => void): void { this.playHandler = cb; }
+    onRemoveGame(cb: (gameId: string) => void): void { this.removeHandler = cb; }
+    onLaunchOptions(cb: (gameId: string) => void): void { this.launchOptionsHandler = cb; }
     setSortKey(key: SortKey): void {
       this.sortKey = key;
       this.sortDropdown.set_selected(SORT_OPTS.findIndex((o) => o.key === key));
-      this.applySort();
+      this.renderGames();
     }
-    onSortChanged(cb: (key: string) => void): void {
-      this.sortChangedHandler = cb;
-    }
-    onAddToAppMenu(cb: (gameId: string) => void): void {
-      this.addToAppMenuHandler = cb;
-    }
-    onRemoveFromAppMenu(cb: (gameId: string) => void): void {
-      this.removeFromAppMenuHandler = cb;
-    }
-    onBackupSave(cb: (gameId: string) => void): void {
-      this.backupHandler = cb;
-    }
-    onRestoreSave(cb: (gameId: string) => void): void {
-      this.restoreHandler = cb;
-    }
-    onAchievements(cb: (gameId: string) => void): void {
-      this.achievementsHandler = cb;
-    }
-
-    getPlaytimeSummary(): string {
-      return formatPlaytimeSummary(computePlaytimeSummary(this.cachedGames));
-    }
+    onSortChanged(cb: (key: string) => void): void { this.sortChangedHandler = cb; }
+    onAddToAppMenu(cb: (gameId: string) => void): void { this.addToAppMenuHandler = cb; }
+    onRemoveFromAppMenu(cb: (gameId: string) => void): void { this.removeFromAppMenuHandler = cb; }
+    onBackupSave(cb: (gameId: string) => void): void { this.backupHandler = cb; }
+    onRestoreSave(cb: (gameId: string) => void): void { this.restoreHandler = cb; }
+    onAchievements(cb: (gameId: string) => void): void { this.achievementsHandler = cb; }
+    refreshLibrary(): void { this.refreshHandler?.(); }
+    getPlaytimeSummary(): string { return formatPlaytimeSummary(computePlaytimeSummary(this.cachedGames)); }
   },
 );

@@ -1,14 +1,11 @@
 import { DownloadRowWidget } from '../widgets/download-row';
 import { buildCompletedRow } from './downloads-completed-row';
-import { createDownloadsEmptyState } from './downloads-empty-state';
-import { updateDownloadsSummary, clearGtkListBox } from './downloads-summary';
+import { buildDownloadsPage, updateDownloadsSummary, clearGtkListBox } from './downloads-summary';
 import { setPipelineSteps, removePipelineTimeline } from './downloads-timeline';
 import type { Download, QueueAction } from '../../domain/models';
 import { reorderDownloads } from '../../domain/queue';
 import { _t } from '../../domain/i18n';
-import { createButton } from '../factory';
 import type { StepDisplay } from '../widgets/pipeline-timeline';
-import { createScrollContent } from '../templates/scroll-content';
 
 const { Gtk, Adw, GObject } = imports.gi;
 
@@ -33,38 +30,17 @@ export const DownloadsView = GObject.registerClass(
     constructor() {
       super();
       this.add_css_class('downloads-view');
-      const page = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 });
-
-      this.summaryBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 12 });
-      this.summaryLabel = new Gtk.Label({ label: _t('downloads.summary.active').replace('{0}', '0'), xalign: 0 });
-      this.speedLabel = new Gtk.Label({ label: '', xalign: 1 });
-      this.summaryBox.append(this.summaryLabel);
-      this.summaryBox.append(this.speedLabel);
-      page.append(this.summaryBox);
-
-      const activeGroup = new Adw.PreferencesGroup({ title: _t('downloads.active') });
-      this.activeList = new Gtk.ListBox({ css_classes: ['boxed-list'] });
-      activeGroup.add(this.activeList);
-      page.append(activeGroup);
-
-      const completedGroup = new Adw.PreferencesGroup({ title: _t('downloads.completed') });
-      this.completedList = new Gtk.ListBox({ css_classes: ['boxed-list'] });
-      completedGroup.add(this.completedList);
-      completedGroup.add(
-        createButton({
-          label: _t('downloads.clear-completed'),
-          tooltip: _t('downloads.clear-completed'),
-          onClick: () => this.clearCompletedDownloads(),
-        }),
+      const built = buildDownloadsPage(
+        () => this.clearCompletedDownloads(),
+        this.browseCatalogHandler,
       );
-      page.append(completedGroup);
-
-      const emptyPage = createDownloadsEmptyState(this.browseCatalogHandler);
-
-      this.stack = new Gtk.Stack();
-      this.stack.add_named(createScrollContent(page, { expand: true }), 'content');
-      this.stack.add_named(emptyPage, 'empty');
-      this.set_child(this.stack);
+      this.summaryBox = built.summaryBox;
+      this.summaryLabel = built.summaryLabel;
+      this.speedLabel = built.speedLabel;
+      this.activeList = built.activeList;
+      this.completedList = built.completedList;
+      this.stack = built.stack;
+      this.set_child(built.stack);
       this.updateSummary();
     }
 

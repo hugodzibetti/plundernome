@@ -36,6 +36,7 @@ export function wireMetadataEnrichment(
             }
             catalogView.setGames([...games])
           }
+          catalogView.setEnrichedMetadata(game.id, meta)
         }
         done++
         if (done === batch.length) GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => { tick(); return SOURCE_REMOVE })

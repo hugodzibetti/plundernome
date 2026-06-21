@@ -43,3 +43,39 @@ export function extractOvaGamesDownloadLinks(html: string): string[] {
   }
   return [...new Set(links)];
 }
+
+export function extractKaosKrewDownloadLinks(html: string): string[] {
+  const links: string[] = [];
+  const patterns = [/href="(magnet:[^"]+)"/gi];
+  for (const re of patterns) {
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(html)) !== null) links.push(m[1]!);
+  }
+  return [...new Set(links)];
+}
+
+export function extractTorrminatorrDownloadLinks(html: string): string[] {
+  const links: string[] = [];
+  const patterns = [
+    /href="(magnet:[^"]+)"/gi,
+    /href="([^"]+\.torrent)"/gi,
+  ];
+  for (const re of patterns) {
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(html)) !== null) links.push(m[1]!);
+  }
+  return [...new Set(links)];
+}
+
+export function extractTapochekDownloadLinks(html: string): string[] {
+  const links: string[] = [];
+  const patterns = [
+    /href="(magnet:[^"]+)"/gi,
+    /href="([^"]+\.torrent)"/gi,
+  ];
+  for (const re of patterns) {
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(html)) !== null) links.push(m[1]!);
+  }
+  return [...new Set(links)];
+}

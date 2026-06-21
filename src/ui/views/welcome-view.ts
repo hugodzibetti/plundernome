@@ -1,9 +1,8 @@
-import { SOURCE_DEFINITIONS } from '../../sources';
 import { SettingsManager, GSETTINGS_KEYS } from '../../services/gsettings';
-import { createButton } from '../factory';
 import { createScrollContent } from '../templates/scroll-content';
 import { pickFileOrDir } from '../welcome-picker-utils';
 import { _t } from '../../domain/i18n';
+import { buildWelcomeHeader, buildSourcesGroup, buildDirGroup, buildWineGroup, createGetStartedButton } from './welcome-steps';
 
 const { Gtk, Adw, GLib, Gio, GObject } = imports.gi;
 
@@ -36,67 +35,26 @@ export const WelcomeView = GObject.registerClass(
       rootBox.add_css_class('welcome-content');
       rootBox.set_valign(Gtk.Align.START);
 
-      const headerBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 8 });
-      const icon = new Gtk.Image({ icon_name: 'applications-games-symbolic', pixel_size: 64 });
-      icon.add_css_class('welcome-icon');
-      headerBox.append(icon);
-      const title = new Gtk.Label({ label: _t('welcome.title'), xalign: 0 });
-      title.add_css_class('title-1');
-      headerBox.append(title);
-      const subtitle = new Gtk.Label({
-        label: _t('welcome.subtitle'),
-        xalign: 0,
-        wrap: true,
-      });
-      subtitle.add_css_class('welcome-subtitle');
-      headerBox.append(subtitle);
-      rootBox.append(headerBox);
+      rootBox.append(buildWelcomeHeader());
 
-      const sourcesGroup = new Adw.PreferencesGroup({ title: _t('welcome.step1') });
-      const sourceGrid = new Gtk.FlowBox();
-      sourceGrid.set_max_children_per_line(2);
-      sourceGrid.set_min_children_per_line(1);
-      sourceGrid.set_selection_mode(Gtk.SelectionMode.NONE);
-      sourceGrid.add_css_class('welcome-source-grid');
-      for (const src of SOURCE_DEFINITIONS) {
-        const check = new Gtk.CheckButton({ label: src.name, active: src.enabled });
-        check.connect('toggled', () => this.validateSteps());
-        this.sourceCheckboxes.set(src.id, check);
-        const chip = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 6 });
-        chip.add_css_class('welcome-source-chip');
-        chip.append(check);
-        sourceGrid.append(chip);
-      }
-      sourcesGroup.add(sourceGrid);
-      rootBox.append(sourcesGroup);
+      const { group: srcGroup, checkboxes } = buildSourcesGroup(() => this.validateSteps());
+      this.sourceCheckboxes = checkboxes;
+      rootBox.append(srcGroup);
 
-      const dirGroup = new Adw.PreferencesGroup({ title: _t('welcome.step2') });
-      this.dlDirRow = new Adw.ActionRow({ title: _t('welcome.download-folder'), subtitle: this.dlDir });
-      const browseBtn = createButton({ label: `${_t('common.browse')}\u2026`, onClick: () => this.pickDownloadDir() });
-      this.dlDirRow.add_suffix(browseBtn);
-      this.dlDirRow.set_activatable_widget(browseBtn);
-      dirGroup.add(this.dlDirRow);
+      const { group: dirGroup, row: dlDirRow } = buildDirGroup(this.dlDir, () => this.pickDownloadDir());
+      this.dlDirRow = dlDirRow;
       rootBox.append(dirGroup);
 
-      const wineGroup = new Adw.PreferencesGroup({ title: _t('welcome.step3') });
-      this.wineRow = new Adw.ActionRow({
-        title: _t('welcome.wine-binary'),
-        subtitle: this.winePath || _t('welcome.wine-auto'),
-      });
-      const detectBtn = createButton({ label: _t('welcome.auto-detect'), onClick: () => this.autoDetectWine() });
-      this.wineRow.add_suffix(detectBtn);
-      const wineBrowseBtn = createButton({ label: `${_t('common.browse')}\u2026`, onClick: () => this.pickWinePath() });
-      this.wineRow.add_suffix(wineBrowseBtn);
-      wineGroup.add(this.wineRow);
+      const { group: wineGroup, row: wineRow } = buildWineGroup(
+        this.winePath,
+        () => this.autoDetectWine(),
+        () => this.pickWinePath(),
+      );
+      this.wineRow = wineRow;
       rootBox.append(wineGroup);
 
-      this.getStartedBtn = createButton({
-        label: _t('welcome.get-started'),
-        cssClass: 'suggested-action',
-        onClick: () => this.finishWizard(),
-      });
+      this.getStartedBtn = createGetStartedButton(() => this.finishWizard());
       this.getStartedBtn.set_sensitive(false);
-      this.getStartedBtn.set_halign(Gtk.Align.CENTER);
       rootBox.append(this.getStartedBtn);
 
       const clamp = createScrollContent(rootBox, { maxHeight: 420 });

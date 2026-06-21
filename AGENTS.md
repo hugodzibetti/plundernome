@@ -147,7 +147,11 @@ For manual GJS service testing: `gjs -m path/to/test.js`.
 3. Agent reads tests, not impl, of dependencies
 4. Cross-feature state: interfaces or events only, no shared singletons
 
-### File ownership
+### Cross-session handoff
+
+Shared handoff: `/tmp/plundernome-handoff.md`. Read on start, append on end. Keep current work summary so other agents pick up without overlap.
+
+## File ownership
 
 | File                                                                             | Owner                          |
 | -------------------------------------------------------------------------------- | ------------------------------ |

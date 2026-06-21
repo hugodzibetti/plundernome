@@ -7,7 +7,7 @@ import type { ITorrentService } from './types';
 import type { DependencyInstaller } from './dependency';
 import type { PipelineEvent } from './pipeline-types';
 import { executePipelineStart } from './pipeline-start';
-import type { DownloadContext, StateContext } from './pipeline-step-runner';
+import type { DownloadContext, StateContext } from './pipeline-context';
 
 export class PipelineOrchestrator {
   private states = new Map<GameID, PipelineState>();

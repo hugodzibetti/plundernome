@@ -1,5 +1,6 @@
 import type { ChecksumResult } from './sha256'
 
+export const SERVICE_VERSION = '1.0.0'
 export { HttpService } from './http'
 export { DatabaseService } from './database'
 export { ExtractorService } from './extractor'

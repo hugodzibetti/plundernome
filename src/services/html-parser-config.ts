@@ -25,21 +25,9 @@ export interface ParserConfig {
     date: ParserFieldConfig;
     tags: ParserFieldConfig;
   };
-  /** Some sources need container-level text fallback for size */
   sizeContainerFallback?: boolean;
-  /** Some sources need extra tag collection from span.tag a */
   tagsFromSpanClass?: string;
 }
-
-/*
- * Config keying:
- * - selector: CSS-like query run via getElementsByTag + hasClass + getAttr
- * - extract: 'text' (getText), 'text-after-label' (text after label pattern), 'class-text' (text of el with class)
- * - labelPattern: regex to strip from text for size
- * - attr: attribute to read instead of text
- * - fallbackSelector: alternative query if primary yields nothing
- * - fallbackClass: additional class to check for fallback
- */
 
 export const PARSER_CONFIGS: Partial<Record<SourceID, ParserConfig>> = {
   fitgirl: {
@@ -117,18 +105,6 @@ export const PARSER_CONFIGS: Partial<Record<SourceID, ParserConfig>> = {
     },
     sizeContainerFallback: true,
   },
-  'repack-games': {
-    containers: [{ selector: 'article' }, { selector: 'div', extraSelectors: ['post', 'game-listing'] }],
-    fields: {
-      title: { selector: 'h1 a, h2 a, h3 a, div.entry-title a', extract: 'text' },
-      link: { selector: 'h1 a, h2 a, h3 a, div.entry-title a', extract: 'attr', attr: 'href' },
-      size: { selector: 'span.size, span.post-size', extract: 'text' },
-      description: { selector: 'p' },
-      image: { selector: 'img', extract: 'attr', attr: 'src' },
-      date: { selector: 'time', extract: 'attr', attr: 'datetime' },
-      tags: { selector: 'a[rel=tag], a[rel=category]', extract: 'text' },
-    },
-  },
   repacklab: {
     containers: [{ selector: 'article' }, { selector: 'div', extraSelectors: ['post', 'hentry', 'game'] }],
     fields: {
@@ -168,18 +144,6 @@ export const PARSER_CONFIGS: Partial<Record<SourceID, ParserConfig>> = {
       image: { selector: 'picture img', extract: 'attr', attr: 'src' },
       date: { selector: '.card-date, .list-date', extract: 'text' },
       tags: { selector: '.card-genre', extract: 'text' },
-    },
-  },
-  ovagames: {
-    containers: [{ selector: '.home-post-wrap' }],
-    fields: {
-      title: { selector: '.home-post-titles h2 a', extract: 'text' },
-      link: { selector: '.home-post-titles h2 a', extract: 'attr', attr: 'href' },
-      size: { selector: '', extract: 'text' },
-      description: { selector: '', extract: 'text' },
-      image: { selector: 'img.thumbnail', extract: 'attr', attr: 'src' },
-      date: { selector: '', extract: 'text' },
-      tags: { selector: '', extract: 'text' },
     },
   },
 };

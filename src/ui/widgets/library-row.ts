@@ -6,6 +6,44 @@ import { createButton, createAlertDialog, createMenuPopover } from '../factory';
 
 const { Gtk, Adw } = imports.gi;
 
+export interface LibraryEntry {
+  game: Game & { installPath?: string };
+  profile: CompatProfile;
+  playtime?: number;
+  launchOptions?: { env: Record<string, string>; args: string };
+  protonRating?: 'platinum' | 'gold' | 'silver' | 'bronze' | 'borked' | 'pending';
+}
+
+export function renderGameRows(
+  listBox: GtkListBox,
+  entries: LibraryEntry[],
+  launchOptionsHandler: (gameId: string) => void,
+  playHandler: (gameId: string) => void,
+  removeHandler: (gameId: string) => void,
+  addToAppMenuHandler?: (gameId: string) => void,
+  removeFromAppMenuHandler?: (gameId: string) => void,
+  backupHandler?: (gameId: string) => void,
+  restoreHandler?: (gameId: string) => void,
+  achievementsHandler?: (gameId: string) => void,
+): void {
+  let row = listBox.get_first_child() as GtkWidget | null;
+  while (row) {
+    const next = row.get_next_sibling();
+    listBox.remove(row);
+    row = next as GtkWidget | null;
+  }
+  for (const { game, profile, playtime, protonRating } of entries) {
+    listBox.append(
+      buildGameRow(
+        game, profile, playtime,
+        launchOptionsHandler, playHandler, removeHandler,
+        protonRating, addToAppMenuHandler, removeFromAppMenuHandler,
+        backupHandler, restoreHandler, achievementsHandler,
+      ),
+    );
+  }
+}
+
 export function buildGameRow(
   game: Game & { installPath?: string },
   profile: CompatProfile,

@@ -1,3 +1,38 @@
+import type { Game, GameID, PipelineStep } from '../domain/models';
+import type { Dependency } from '../domain/types-extras';
+import type { DatabaseService } from './database';
+import type { ITorrentService } from './types';
+import { findInstallerExe } from './pipeline-steps-extras';
+
+export async function isStepRequired(
+  step: PipelineStep,
+  game: Game,
+  installDir: string,
+  db: DatabaseService,
+  torrent: ITorrentService | null,
+  pendingDeps: Map<GameID, Dependency[]>,
+): Promise<boolean> {
+  if (step === 'verifying') {
+    const rows = await db.query<{ checksum: string | null }>('SELECT checksum FROM games WHERE id = //1', [game.id]);
+    return rows[0]?.checksum != null;
+  }
+  if (step === 'downloading' && game.downloadType === 'torrent') {
+    return torrent != null;
+  }
+  if (step === 'installing-deps') {
+    return (pendingDeps.get(game.id)?.length ?? 0) > 0;
+  }
+  if (step === 'extracting') {
+    const ext = installDir.toLowerCase();
+    return /\.(zip|rar|7z|tar\.gz|tar\.xz|tar\.bz2)$/.test(ext);
+  }
+  if (step === 'running-installer') {
+    const extractedDir = installDir.replace(/\.(zip|rar|7z|tar\.gz|tar\.xz|tar\.bz2)$/, '')
+    return findInstallerExe(extractedDir) !== null
+  }
+  return true;
+}
+
 export function buildMultiPartUrls(url: string): string[] | null {
   const dotMatch = url.match(/^(.*\.)(\d{3})$/)
   if (dotMatch) {

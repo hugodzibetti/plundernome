@@ -3,6 +3,28 @@ import { createButton } from '../factory'
 
 const { Gtk, Adw } = imports.gi
 
+export function setViewLoading(mainStack: GtkStack, overlay: GtkBox | null, loading: boolean): GtkBox | null {
+  if (loading) {
+    if (!overlay) overlay = buildLoadingOverlay()
+    mainStack.add_named(overlay, 'loading')
+    mainStack.set_visible_child_name('loading')
+  } else if (overlay) {
+    mainStack.remove(overlay)
+    overlay = null
+  }
+  return overlay
+}
+
+export function setViewError(mainStack: GtkStack, errorPage: AdwStatusPage | null, msg: string): AdwStatusPage | null {
+  if (!errorPage) {
+    errorPage = buildErrorPage(msg)
+    mainStack.add_named(errorPage, 'error')
+  }
+  errorPage.set_description(msg)
+  mainStack.set_visible_child_name('error')
+  return errorPage
+}
+
 export function buildLoadingOverlay(): GtkBox {
   const overlay = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
   overlay.add_css_class('loading-overlay')
@@ -19,6 +41,25 @@ export function buildErrorPage(message: string): AdwStatusPage {
     icon_name: 'dialog-error-symbolic',
   })
   return page
+}
+
+export function updateEmptyState(mainStack: GtkStack, emptyPage: GtkBox, searchEntry: GtkSearchEntry, n: number): void {
+  if (n > 0) {
+    mainStack.set_visible_child_name('content')
+    return
+  }
+  const q = searchEntry.get_text().toLowerCase()
+  let child: unknown = emptyPage.get_first_child()
+  let idx = 0
+  while (child) {
+    if (idx === 1 && child instanceof Gtk.Label)
+      child.set_label(q ? _t('catalog.empty.title') : _t('catalog.empty.title-empty'))
+    if (idx === 2 && child instanceof Gtk.Label)
+      child.set_label(q ? _t('catalog.empty.no-results').replace('{0}', q) : _t('catalog.empty.description-empty'))
+    child = (child as GtkWidget).get_next_sibling()
+    idx++
+  }
+  mainStack.set_visible_child_name('empty')
 }
 
 export function buildEmptyPage(openSettings: () => void): GtkBox {

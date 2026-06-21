@@ -2,11 +2,12 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { _t, setLocale, getCurrentLocale, registerTranslations } from '../i18n'
 import type { Locale } from '../i18n'
 import { enTranslations } from '../translations/en'
+import { enUiTranslations } from '../translations/en-ui'
 import { deTranslations } from '../translations/de'
 
 beforeEach(() => {
   setLocale('en')
-  registerTranslations({ en: enTranslations, de: deTranslations })
+  registerTranslations({ en: { ...enTranslations, ...enUiTranslations }, de: deTranslations })
 })
 
 describe('i18n', () => {

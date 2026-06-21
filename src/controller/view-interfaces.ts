@@ -3,6 +3,7 @@ import type { SourceDefinition } from '../domain/catalog/types';
 import type { SyncPeer } from '../services/sync-service';
 import type { LogEntry, LogFilter } from '../services/database';
 import type { SourceHealth } from '../services/types';
+import type { EnrichedMetadata } from '../services/metadata-provider';
 
 export interface ICatalogView {
   setGames(games: Game[]): void;
@@ -13,6 +14,7 @@ export interface ICatalogView {
   toggleViewMode(): 'grid' | 'list';
   onDownloadGame(cb: (gameId: string) => void): void;
   onToggleWishlist(cb: (gameId: string, wishlisted: boolean) => void): void;
+  setEnrichedMetadata(gameId: string, meta: EnrichedMetadata): void;
   setLoading(loading: boolean): void;
   showError(message: string): void;
   onOpenSettings(cb: () => void): void;

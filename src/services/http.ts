@@ -1,6 +1,6 @@
 import type { IHttpService, HttpOptions, HttpResponse, DownloadOptions, DownloadResult } from './types'
 import { extractHeaders } from './http-headers'
-import { RollingSpeedTracker, formatBytes } from './http-helpers'
+import { RollingSpeedTracker, formatBytes, createSoupSession, checkLatency, rankMirrorsByLatency } from './http-helpers'
 
 export class HttpService implements IHttpService {
   private _session: SoupSession | null = null
@@ -9,68 +9,33 @@ export class HttpService implements IHttpService {
   private activeCancellables = new Map<string, GioCancellable>()
   private speedTracker = new RollingSpeedTracker()
   private latencyCache = new Map<string, { latency: number; ts: number }>()
-  private static LATENCY_TTL = 60_000
 
   setSpeedLimit(bps: number): void { this.speedLimit = Math.max(0, bps) }
 
   constructor(userAgent?: string) { this.userAgent = userAgent ?? 'Plundernome/0.1' }
 
   private get session(): SoupSession {
-    if (!this._session) {
-      const Soup = imports.gi.Soup
-      this._session = new Soup.Session()
-      this._session.user_agent = this.userAgent
-      this._session.timeout = 30
-    }
+    if (!this._session) this._session = createSoupSession(this.userAgent)
     return this._session
   }
 
-  private set session(val: SoupSession) { this._session = val }
-
-  cancelDownload(url: string): void {
-    const c = this.activeCancellables.get(url)
-    if (c) { c.cancel(); this.activeCancellables.delete(url) }
-  }
+  cancelDownload(url: string): void { const c = this.activeCancellables.get(url); if (c) { c.cancel(); this.activeCancellables.delete(url) } }
 
   async checkLatency(url: string): Promise<number> {
-    const cached = this.latencyCache.get(url)
-    const now = Date.now()
-    if (cached && now - cached.ts < HttpService.LATENCY_TTL) return cached.latency
-    const start = now
-    try {
-      const Soup = imports.gi.Soup
-      const msg = new Soup.Message({ method: 'HEAD', uri: url })
-      this.session.send(msg, null)
-      const lat = Date.now() - start
-      this.latencyCache.set(url, { latency: lat, ts: now })
-      return lat
-    } catch {
-      this.latencyCache.set(url, { latency: Infinity, ts: now })
-      return Infinity
-    }
-  }
-
-  async selectMirror(mirrors: string[]): Promise<string> {
-    if (mirrors.length <= 1) return mirrors[0]!
-    const results = await Promise.all(mirrors.map(async m => ({ url: m, lat: await this.checkLatency(m) })))
-    results.sort((a, b) => a.lat - b.lat)
-    return results[0]!.url
-  }
-
-  async testLatency(url: string): Promise<number> {
-    return this.checkLatency(url)
-  }
-
-  async pickFastestMirror(mirrors: string[]): Promise<string> {
-    return this.selectMirror(mirrors)
+    return checkLatency(this.session, url, this.latencyCache)
   }
 
   async rankMirrorsByLatency(mirrors: string[]): Promise<string[]> {
-    if (mirrors.length <= 1) return [...mirrors]
-    const results = await Promise.all(mirrors.map(async m => ({ url: m, lat: await this.checkLatency(m) })))
-    results.sort((a, b) => a.lat - b.lat)
-    return results.map(r => r.url)
+    return rankMirrorsByLatency(this.session, mirrors)
   }
+
+  async selectMirror(mirrors: string[]): Promise<string> {
+    return (await this.rankMirrorsByLatency(mirrors))[0] ?? mirrors[0]!
+  }
+
+  async testLatency(url: string): Promise<number> { return this.checkLatency(url) }
+
+  async pickFastestMirror(mirrors: string[]): Promise<string> { return this.selectMirror(mirrors) }
 
   async fetch(url: string, options?: HttpOptions): Promise<HttpResponse> {
     const Soup = imports.gi.Soup
@@ -151,9 +116,8 @@ export class HttpService implements IHttpService {
   }
 
   async downloadParts(
-    parts: Array<{ url: string; index: number }>,
-    destinationDir: string,
-    onPartProgress?: (index: number, bytesDownloaded: number, totalBytes: number) => void
+    parts: Array<{ url: string; index: number }>, destinationDir: string,
+    onPartProgress?: (index: number, bytesDownloaded: number, totalBytes: number) => void,
   ): Promise<void> {
     const Gio = imports.gi.Gio; const Soup = imports.gi.Soup; const GLib = imports.gi.GLib
     const concurrency = 2

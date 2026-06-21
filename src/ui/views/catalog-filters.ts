@@ -1,4 +1,5 @@
 import type { Game, SourceID } from '../../domain/models'
+import { fuzzySearch } from '../../domain/catalog/search'
 import { _t } from '../../domain/i18n'
 
 const { Gtk } = imports.gi
@@ -16,11 +17,7 @@ export function applyFilters(
   state: CatalogFilterState,
   nameIndex: Map<string, string>,
 ): Game[] {
-  const q = query.toLowerCase()
-  let result = q ? games.filter(g => {
-    const lower = nameIndex.get(g.id)
-    return lower !== undefined && lower.includes(q)
-  }) : [...games]
+  let result = fuzzySearch(games, { query })
 
   if (state.sizeMin !== null && state.sizeMin > 0) {
     const minB = state.sizeMin * 1e9
