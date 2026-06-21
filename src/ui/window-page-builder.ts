@@ -30,7 +30,7 @@ export function buildSidebarAndPages(
 
   for (const def of PAGE_DEFS) {
     const row = new Gtk.ListBoxRow({ css_classes: ['sidebar-row'], name: def.id })
-    const hbox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 8, margin_start: 4 })
+    const hbox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 6, margin_start: 4 })
     hbox.append(new Gtk.Image({ icon_name: def.iconName, pixel_size: 16 }))
     hbox.append(new Gtk.Label({ label: def.label, xalign: 0 }))
     row.set_child(hbox); sidebar.append(row)

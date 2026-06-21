@@ -112,11 +112,7 @@
   margin-left: 4px;
 }
 
-.sort-bar {
-  background: @card_bg_color;
-  border-bottom: 1px solid @borders;
-  padding: 4px 8px;
-}
+
 
 .step-badge {
   padding: 2px 8px;
@@ -220,6 +216,12 @@ switch {
   font-size: 14px;
   color: @theme_dim_label_color;
 }
+.welcome-source-grid {
+}
+.welcome-source-chip {
+  padding: 4px 8px;
+  min-height: 28px;
+}
 
 /* ——— Filter Toolbar ——— */
 .filter-bar {
@@ -287,14 +289,27 @@ switch {
   font-weight: 600;
 }
 
-/* ——— Error Log Rows ——— */
+/* ——— Error Log Row ——— */
 .error-log-row {
   padding: 4px 0;
 }
-.error-log-message {
-  font-size: 11px;
-  color: @window_dimmed_fg_color;
-  font-family: monospace;
+
+/* ——— Sizing classes (replaces set_size_request) ——— */
+.sizing-cover {
+  min-width: 200px;
+  min-height: 128px;
+}
+.sizing-cover-pic {
+  min-width: 200px;
+  min-height: 128px;
+}
+.sizing-row-cover {
+  min-width: 48px;
+  min-height: 48px;
+}
+.sizing-editor {
+  min-width: 500px;
+  min-height: 150px;
 }
 
 /* ——— Cover Skeleton / Shimmer ——— */
@@ -350,4 +365,138 @@ switch {
 .wishlist-star-active {
   color: @warning_bg_color;
   opacity: 1;
+}
+
+/* ——— View Pages ——— */
+.catalog-view,
+.downloads-view,
+.library-view,
+.settings-view {
+  padding: 12px;
+}
+
+/* ——— Template Layouts ——— */
+.templates-grid {
+  min-width: 200px;
+}
+
+.templates-list {
+  min-width: 200px;
+}
+
+.templates-scroll {
+  min-height: 200px;
+}
+
+.templates-settings {
+  padding: 12px;
+}
+
+.catalog-scroll-clamp {
+  min-height: 200px;
+}
+
+/* ——— Game Card ——— */
+.game-card-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.game-card-content {
+  padding: 8px;
+}
+
+/* ——— Downloads ——— */
+.downloads-timeline {
+  margin: 6px 0;
+  padding: 4px 8px;
+}
+
+.downloads-summary {
+  margin: 4px 0;
+  padding: 6px;
+  font-size: 13px;
+  color: @window_dimmed_fg_color;
+}
+
+.download-row {
+  margin: 2px 0;
+  padding: 4px 8px;
+}
+
+/* ——— Error Stack ——— */
+.error-stack-expander {
+  margin: 4px 0;
+}
+
+.error-stack-clamp {
+  min-width: 300px;
+  max-height: 200px;
+}
+
+/* ——— Entry Row & Popovers ——— */
+.entry-row-box {
+  margin: 2px 0;
+  padding: 4px;
+}
+
+.menu-popover {
+  min-width: 150px;
+}
+
+.menu-popover-box {
+  padding: 4px;
+}
+
+/* ——— Action Bar ——— */
+.action-bar {
+  margin: 6px 0;
+  padding: 4px;
+}
+
+/* ——— Catalog Search ——— */
+.catalog-search-bar {
+  margin: 4px 8px;
+}
+
+.catalog-search-entry {
+  min-width: 200px;
+}
+
+.catalog-filter-spinner {
+  margin: 0 6px;
+}
+
+/* ——— Error Log ——— */
+.error-log-group {
+  margin: 6px 0;
+}
+
+/* ——— Settings Groups ——— */
+.settings-backup-group,
+.settings-sources-group {
+  margin: 6px 0;
+}
+
+/* ——— Editor Widgets ——— */
+.launch-options-editor {
+  min-width: 400px;
+  min-height: 200px;
+}
+
+.source-item {
+  margin: 2px 0;
+  padding: 4px 8px;
+}
+
+/* ——— Settings Widget Groups ——— */
+.download-settings-group,
+.wine-settings-group,
+.steam-settings-group,
+.lan-sync-group,
+.appearance-group {
+  margin: 6px 0;
 }
