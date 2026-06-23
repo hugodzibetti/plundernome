@@ -14,7 +14,7 @@ export function buildCompletedRow(
     title: download.name,
     subtitle: `${formatBytes(download.totalBytes)} — ${formatDate(download.completedAt)}`,
   })
-  row.add_prefix(new Gtk.Image({ icon_name: iconName }))
+  row.add_prefix(new Gtk.Image({ icon_name: iconName, valign: Gtk.Align.CENTER }))
   if (download.status === 'failed') {
     row.add_css_class('error-row')
     row.add_suffix(createButton({ iconName: 'view-refresh-symbolic', tooltip: _t('downloads.retry'), onClick: () => retryHandler?.(download.id) }))

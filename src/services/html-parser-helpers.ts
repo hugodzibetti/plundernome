@@ -59,7 +59,7 @@ export function hasClass(el: any, cls: string): boolean {
 
 export function findLinkTitle(container: any): { name: string; url: string } | null {
   for (const tag of ['h1', 'h2', 'h3']) {
-    const headers = childrenByTag(container, tag);
+    const headers = getElementsByTag(container, tag);
     for (const h of headers) {
       const links = getElementsByTag(h, 'a');
       for (const link of links) {

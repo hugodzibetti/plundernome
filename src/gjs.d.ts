@@ -183,6 +183,8 @@ declare class GtkDropDown extends GtkWidget {
 
 declare class GtkStringList {
   constructor(props?: Record<string, unknown>);
+  append(str: string): void;
+  get_string(pos: number): string;
 }
 
 declare class GtkScrolledWindow extends GtkWidget {

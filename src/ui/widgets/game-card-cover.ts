@@ -28,7 +28,7 @@ export function createGameCardCover(): GameCardCoverWidget {
   picture.add_css_class('sizing-cover-pic')
   stack.add_named(picture, 'cover')
 
-  const fallback = new Gtk.Image({ icon_name: 'application-x-executable', pixel_size: 128 })
+  const fallback = new Gtk.Image({ icon_name: 'application-x-executable', pixel_size: 128, valign: Gtk.Align.CENTER })
   fallback.add_css_class('card-cover')
   fallback.add_css_class('sizing-cover')
   stack.add_named(fallback, 'fallback')

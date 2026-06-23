@@ -38,7 +38,7 @@ export const PipelineTimelineWidget = GObject.registerClass(
     }
 
     private buildStepWidget(step: PipelineStep, status: StepStatus): StepWidgets {
-      const icon = new Gtk.Image({ icon_name: iconForStatus(status), pixel_size: 12 });
+      const icon = new Gtk.Image({ icon_name: iconForStatus(status), pixel_size: 12, valign: Gtk.Align.CENTER });
       const label = new Gtk.Label({ label: stepLabel(step), xalign: 0 });
       label.add_css_class('step-badge');
       label.add_css_class(cssForStatus(status));

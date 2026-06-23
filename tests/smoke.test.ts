@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DIST = 'dist/main.js'
-const SCHEMA_XML = 'io.github.plundernome.gschema.xml'
+const SCHEMA_XML = 'data/io.github.plundernome.gschema.xml'
 
 beforeAll(() => {
   execSync('node scripts/build.mjs', { encoding: 'utf-8', stdio: 'pipe' })
@@ -46,6 +46,8 @@ describe('Syntax check', () => {
 
 describe('Runtime', () => {
   it('starts under xvfb without crashing within 3s', () => {
+    try { execSync('which xvfb-run', { stdio: 'ignore' }) }
+    catch { return }
     const proc = spawn('timeout', ['3', 'xvfb-run', '-a', 'gjs', 'dist/main.js'], {
       stdio: ['ignore', 'pipe', 'pipe'],
     })

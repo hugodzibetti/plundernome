@@ -5,6 +5,7 @@ import { ScrollManager, buildFlowView, buildListView } from './catalog-scroll'
 import { buildFilterToolbar, type CatalogFilterState } from './catalog-filters'
 import { buildEmptyPage, updateEmptyState } from './catalog-loading'
 import { showGameDetailDialog } from '../widgets/game-detail-dialog'
+import { createGridContent } from '../templates'
 
 const { Gtk } = imports.gi
 
@@ -75,12 +76,8 @@ export function buildCatalogViewUI(
   outer.append(searchHeader);
   const viewStack = new Gtk.Stack();
   viewStack.set_transition_type(Gtk.StackTransitionType.CROSSFADE);
-  const flowBox = new Gtk.FlowBox();
-  flowBox.set_max_children_per_line(4);
-  flowBox.set_min_children_per_line(2);
-  flowBox.set_homogeneous(false);
-  flowBox.set_selection_mode(Gtk.SelectionMode.NONE);
-  const gv = buildFlowView(flowBox);
+  const flowBox = createGridContent()
+  const gv = buildFlowView(flowBox)
   viewStack.add_named(gv.clamp, 'grid');
   const listBox = new Gtk.ListBox({ css_classes: ['boxed-list', 'catalog-list'] });
   const lv = buildListView(listBox);

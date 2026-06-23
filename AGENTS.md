@@ -4,6 +4,10 @@ Any text written for AI consumption (guidance, instructions, docs, comments, AGE
 
 # Plundernome — AI Coding Guide
 
+## IDE: GNOME Builder
+
+Flatpak manifest `flatpak/io.github.plundernome.json`. Build + run via Builder. Terminal dev for quick iteration: `npm run build && gjs dist/main.js`.
+
 ## Stack
 
 - Runtime: GJS (GNOME JS, `gi://` bindings)
@@ -26,10 +30,14 @@ controller/ → wires domain logic to services and UI views.
 
 ## Commands
 
+### Completion gate (always do before done)
+
+Build must pass: `npm run build`. No exception. Run before declaring finished.
+
 ### Pre-commit hook (must pass)
 
 ```
-npx tsc --noEmit && npx vitest run && bash scripts/check-conventions.sh
+npx tsc --noEmit && npx vitest run && npm run build && bash scripts/check-conventions.sh
 ```
 
 ### CI workflow order (`.github/workflows/ci.yml`)

@@ -1,13 +1,12 @@
 import type { Game, GameID, PipelineState, PipelineStep } from '../domain/models';
-import type { Dependency } from '../domain/types-extras';
 import type { DatabaseService } from './database';
 import type { HttpService } from './http';
 import type { ExtractorService } from './extractor';
 import type { ITorrentService } from './types';
+import type { Dependency } from '../domain/compat/types';
 import type { DependencyInstaller } from './dependency';
 import type { PipelineEvent } from './pipeline-types';
-import { executePipelineStart } from './pipeline-start';
-import type { DownloadContext, StateContext } from './pipeline-context';
+import { PipelineExecutor } from './pipeline-executor';
 
 export class PipelineOrchestrator {
   private states = new Map<GameID, PipelineState>();
@@ -17,13 +16,12 @@ export class PipelineOrchestrator {
   private pendingDeps = new Map<GameID, Dependency[]>();
   private pendingExePath = new Map<GameID, string>();
   private pendingParts = new Map<GameID, string[]>();
-  private torrent: ITorrentService | null = null;
-  private depInstaller: DependencyInstaller | null = null;
   private retryState = new Map<
     GameID,
     { step: PipelineStep; retryCount: number; lastError: string; mirrorIndex: number }
   >();
   private gameMirrors = new Map<GameID, string[]>();
+  private executor: PipelineExecutor;
 
   constructor(
     private db: DatabaseService,
@@ -31,8 +29,9 @@ export class PipelineOrchestrator {
     private extractor: ExtractorService,
     opts?: { torrent?: ITorrentService; depInstaller?: DependencyInstaller },
   ) {
-    this.torrent = opts?.torrent ?? null;
-    this.depInstaller = opts?.depInstaller ?? null;
+    this.executor = new PipelineExecutor(db, http, extractor, {
+      launcher: null, torrent: opts?.torrent ?? null, depInstaller: opts?.depInstaller ?? null,
+    });
   }
 
   onEvent(cb: (evt: PipelineEvent) => void): void {
@@ -72,25 +71,11 @@ export class PipelineOrchestrator {
   }
 
   async start(game: Game, downloadUrl: string, downloadPath: string, mirrors?: string[]): Promise<void> {
-    const stateCtx: StateContext = {
-      states: this.states,
-      retryState: this.retryState,
-      pendingDeps: this.pendingDeps,
-      pendingExePath: this.pendingExePath,
-      emit: (e) => this.emit(e),
-    };
-    const downloadCtx: DownloadContext = {
-      db: this.db,
-      http: this.http,
-      extractor: this.extractor,
-      launcher: null,
-      torrent: this.torrent,
-      depInstaller: this.depInstaller,
-      gameMirrors: this.gameMirrors,
-      pendingParts: this.pendingParts,
-      onDownloadProgress: this.onDownloadProgress,
-    };
-    await executePipelineStart(stateCtx, downloadCtx, game, downloadUrl, downloadPath, mirrors);
+    await this.executor.execute(game, downloadUrl, downloadPath, mirrors, {
+      states: this.states, retryState: this.retryState,
+      pendingDeps: this.pendingDeps, pendingExePath: this.pendingExePath,
+      pendingParts: this.pendingParts, gameMirrors: this.gameMirrors,
+    }, (e) => this.emit(e), this.onDownloadProgress);
   }
 
   getRetryState(gameId: GameID): { step: PipelineStep; retryCount: number; lastError: string } | null {

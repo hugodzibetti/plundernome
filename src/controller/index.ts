@@ -25,10 +25,9 @@ import { HtmlParserServiceNew2 } from '../services/html-parser-new2';
 import { loadSourceDefinitions } from './source-loader';
 import { buildParsersMap } from './parser-map';
 import { buildDownloadHandler } from './download-handlers';
+import { buildPlayHandler } from './handlers';
 import { scrapeAllSources } from './scraper';
 import { startAutoUpdate } from './auto-updater';
-import { wireLANSync } from './lansync-wirer';
-import { wireWishlist } from './wishlist-wirer';
 import { wireSources, wireBackup } from './settings-wirer';
 import { wirePipelineEvents } from './pipeline-wirer';
 import { fetchProtonRatingsBg, startHealthChecks } from './health-wirer';
@@ -111,10 +110,11 @@ export class AppController implements IAppController {
         this.pipeline,
         this.db,
         this.deps.window,
-        this.deps.libraryView,
+        this.deps.dialogService,
         this.notifications,
         this.sources,
         () => refreshLibrary(this),
+        (gameId) => buildPlayHandler(this.db, this.launcher, this.deps.window)(gameId),
       );
       this.allGames = await scrapeAllSources(this.sources, this.http, buildParsersMap(new HtmlParserServiceNew2()));
       this.deps.catalogView.setGames(this.allGames);
@@ -122,8 +122,6 @@ export class AppController implements IAppController {
       await refreshLibrary(this);
       const incomplete = await this.db.getAllIncompletePipelines();
       if (incomplete.length > 0) this.deps.window.showToast(`${incomplete.length} pipeline(s) incomplete — retry`);
-      wireLANSync(this.syncService, this.deps.settingsView, this.deps.window);
-      wireWishlist(this.deps.catalogView, this.db);
       wireSources(this.deps.settingsView, this.deps.window);
       wireBackup(this.deps.settingsView, this.db, this.deps.window);
       this.autoUpdateTimers = startAutoUpdate(

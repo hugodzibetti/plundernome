@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 SCHEMA_DIR="$(mktemp -d --tmpdir plundernome-schema-XXXXXXXX)"
-cp io.github.plundernome.gschema.xml "$SCHEMA_DIR/"
+cp data/io.github.plundernome.gschema.xml "$SCHEMA_DIR/"
 glib-compile-schemas "$SCHEMA_DIR"
 
 npm run build

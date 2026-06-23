@@ -3,6 +3,7 @@ import { BigPictureApp } from './ui/big-picture/window';
 import { AppController } from './controller';
 import { SettingsManager, GSETTINGS_KEYS } from './services/gsettings';
 import { initTranslations } from './domain/translations';
+import { DialogServiceImpl, LaunchOptionsEditorImpl } from './ui/dialog-service';
 
 declare const ARGV: string[] | undefined;
 
@@ -44,6 +45,8 @@ export const PlundernomeApp = GObject.registerClass(
     private onActivate(): void {
       initTranslations();
       const win = new PlundernomeWindow(this);
+      const dialogService = new DialogServiceImpl()
+      dialogService.setParent(win as unknown as GtkWidget)
       this.controller = new AppController({
         catalogView: win.getCatalogView(),
         libraryView: win.getLibraryView(),
@@ -51,6 +54,8 @@ export const PlundernomeApp = GObject.registerClass(
         settingsView: win.getSettingsView(),
         emulatorsView: win.getEmulatorsView(),
         window: win,
+        dialogService,
+        launchOptionsEditor: new LaunchOptionsEditorImpl(),
       });
       this.controller.init();
       win.present();

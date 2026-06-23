@@ -1,0 +1,4 @@
+.big-picture { font-size: 1.2em; }
+.big-picture-header { border: none; background: transparent; }
+.big-picture-nav { background: @card_bg_color; border-top: 1px solid @borders; min-height: 64px; }
+.big-picture-nav-btn { min-height: 56px; font-size: 1.1em; font-weight: 600; border-radius: 0; }

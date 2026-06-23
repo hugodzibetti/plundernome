@@ -1,5 +1,5 @@
 import type { GameID } from '../domain/models'
-import type { FileEntry } from '../domain/types-extras'
+import type { FileEntry } from '../domain/library-types'
 
 export interface ScanResult {
   gameId: GameID

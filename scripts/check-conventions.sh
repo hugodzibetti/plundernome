@@ -144,7 +144,7 @@ if [ -x "$SG" ]; then
     rule="${spec%%:*}"
     paths="${spec#*:}"
     echo "  [sg] $rule"
-    if out=$("$SG" scan --rule "rules/$rule.yml" $paths 2>&1); then
+    if out=$("$SG" scan --rule "config/rules/$rule.yml" $paths 2>&1); then
       echo "    OK"
       pass=$((pass + 1))
     else

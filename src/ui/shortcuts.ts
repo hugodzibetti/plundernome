@@ -1,5 +1,5 @@
 import { _t } from '../domain/i18n';
-import type { ICatalogView, ILibraryView } from '../controller/view-interfaces';
+import type { ICatalogView } from '../controller/view-interfaces';
 
 const { Gtk, Adw } = imports.gi;
 
@@ -49,37 +49,7 @@ export function setupWindowShortcuts(win: WindowWithNav, stack: GtkStack): void 
         views.add_shortcut(new Adw.ShortcutsShortcut({ title: _t('shortcuts.library'), accelerator: '<Control>3' }));
         views.add_shortcut(new Adw.ShortcutsShortcut({ title: _t('shortcuts.settings'), accelerator: '<Control>4' }));
         sw.add(views);
-        const act = new Adw.ShortcutsSection({ title: _t('shortcuts.actions') });
-        act.add_shortcut(new Adw.ShortcutsShortcut({ title: _t('shortcuts.play'), accelerator: 'Space' }));
-        act.add_shortcut(new Adw.ShortcutsShortcut({ title: _t('shortcuts.remove'), accelerator: 'Delete' }));
-        sw.add(act);
         sw.present();
-        return true;
-      }),
-    }),
-  );
-
-  controller.add_shortcut(
-    new Gtk.Shortcut({
-      trigger: Gtk.ShortcutTrigger.parse_string('space'),
-      action: new Gtk.CallbackAction(() => {
-        const lib = stack.get_child_by_name('library') as ILibraryView | null;
-        const id = lib?.getSelectedGameId?.();
-        if (!id) return false;
-        lib?.triggerPlay?.(id);
-        return true;
-      }),
-    }),
-  );
-
-  controller.add_shortcut(
-    new Gtk.Shortcut({
-      trigger: Gtk.ShortcutTrigger.parse_string('Delete'),
-      action: new Gtk.CallbackAction(() => {
-        const lib = stack.get_child_by_name('library') as ILibraryView | null;
-        const id = lib?.getSelectedGameId?.();
-        if (!id) return false;
-        lib?.triggerRemove?.(id);
         return true;
       }),
     }),

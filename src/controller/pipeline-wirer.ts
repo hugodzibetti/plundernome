@@ -1,19 +1,20 @@
 import type { PipelineOrchestrator } from '../services'
 import type { PipelineEvent } from '../services/pipeline-types'
-import type { IWindow, ILibraryView } from './view-interfaces'
+import type { IWindow } from './view-interfaces'
+import type { IDialogService } from './types-dialog'
 import type { DatabaseService } from '../services/database'
 import type { SourceDefinition } from '../domain/catalog/types'
 import type { NotificationService } from '../services/notifications'
-import { showErrorDialog, showRetryWithMirrorDialog } from '../ui/error-dialog'
 
 export function wirePipelineEvents(
   pipeline: PipelineOrchestrator,
   db: DatabaseService,
   window: IWindow,
-  libraryView: ILibraryView,
+  dialogService: IDialogService,
   notifications: NotificationService,
   sources: SourceDefinition[],
   refreshLibrary: () => void,
+  playGame?: (gameId: string) => void,
 ): void {
   pipeline.onEvent(async (evt: PipelineEvent) => {
     if (evt.type === 'error' && evt.gameId) {
@@ -21,31 +22,23 @@ export function wirePipelineEvents(
       const source = gameRow ? sources.find(s => s.id === gameRow.sourceId) : null
       const mirrors = source?.mirrors ?? []
       if (evt.step === 'downloading' && mirrors.length > 0) {
-        showRetryWithMirrorDialog(
-          window as unknown as GtkWidget,
-          evt.gameId,
-          gameRow?.url ?? '',
+        const selectedMirror = await dialogService.showRetryWithMirrorDialog(
+          'Download Failed',
+          evt.error ?? 'Unknown error',
           mirrors,
-          () => pipeline.retryMirror(evt.gameId),
         )
+        if (selectedMirror) pipeline.retryMirror(evt.gameId)
       } else {
-        const onMirrorRetry = mirrors.length > 0 ? () => pipeline.retryMirror(evt.gameId) : undefined
-        showErrorDialog({
-          parent: window as unknown as GtkWidget,
-          title: 'Pipeline Error',
-          message: evt.error ?? 'Unknown error',
-          gameId: evt.gameId,
-          onRetry: () => pipeline.retryStep(evt.gameId!),
-          onMirrorRetry,
-        })
+        dialogService.showError('Pipeline Error', evt.error ?? 'Unknown error')
       }
     }
     if (evt.type === 'complete') {
       const gameRow = await db.getGame(evt.gameId)
       const gameName = gameRow?.name ?? 'Unknown'
-      window.showToastWithAction(`Installation complete: ${gameName}`, 'Launch', () => libraryView.triggerPlay(evt.gameId))
+      const launch = () => playGame?.(evt.gameId)
+      window.showToastWithAction(`Installation complete: ${gameName}`, 'Launch', launch)
       notifications.showDownloadCompleteWithActions(evt.gameId, gameName, [
-        { label: 'Launch Now', callback: () => libraryView.triggerPlay(evt.gameId) },
+        { label: 'Launch Now', callback: launch },
         { label: 'Show in App', callback: () => window.navigateTo('library') },
       ])
       refreshLibrary()

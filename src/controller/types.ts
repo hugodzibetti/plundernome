@@ -1,6 +1,7 @@
 import type {
-  ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IWindow,
+  ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IWindow, IEmulatorView,
 } from './view-interfaces'
+import type { IDialogService, ILaunchOptionsEditor } from './types-dialog'
 
 export interface IAppController {
   init(): Promise<void>
@@ -13,5 +14,7 @@ export interface ControllerDeps {
   downloadsView: IDownloadsView
   settingsView: ISettingsView
   window: IWindow
-  emulatorsView: import('./view-interfaces').IEmulatorView
+  emulatorsView: IEmulatorView
+  dialogService: IDialogService
+  launchOptionsEditor: ILaunchOptionsEditor
 }

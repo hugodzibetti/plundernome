@@ -14,7 +14,4 @@ export { DownloadRowWidget } from './widgets/download-row'
 export { SourceConfigRow } from './widgets/source-config'
 export { showLaunchOptionsEditor } from './widgets/launch-options-editor'
 export { buildGameRow } from './widgets/library-row'
-export { PAGE_DEFS, type PageDef, buildCatalogViewToggle, buildLibraryImportBtn } from './window-page-defs'
-export { SORT_OPTS, sortGames, type SortKey } from './views/catalog-sort'
-export { renderGamesToBoxes } from './views/catalog-render'
-export { buildCompletedRow } from './views/downloads-completed-row'
+

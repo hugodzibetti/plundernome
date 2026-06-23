@@ -1,14 +1,15 @@
-import type { Game, GameID, PipelineStep } from '../domain/models'
-import type { Dependency } from '../domain/types-extras'
-import type { DatabaseService } from './database'
-import type { ExtractorService } from './extractor'
-import type { DependencyInstaller } from './dependency'
-import type { Launcher } from './launcher'
+import type { Game, GameID, PipelineStep } from '../../domain/models'
+import type { Dependency } from '../../domain/compat/types'
+import type { DatabaseService } from '../database'
+import type { ExtractorService } from '../extractor'
+import type { DependencyInstaller } from '../dependency'
+import type { Launcher } from '../launcher'
+import type { ProgressFn } from './download-steps'
 
 export async function runExtractStep(
   gameId: GameID, archivePath: string, installDir: string,
   extractor: ExtractorService,
-  onProgress?: (gameId: GameID, step: PipelineStep, current: number, total: number) => void
+  onProgress?: ProgressFn,
 ): Promise<void> {
   const result = await extractor.extract(archivePath, installDir, (current, total, _file) => {
     onProgress?.(gameId, 'extracting', current, total)
@@ -16,10 +17,8 @@ export async function runExtractStep(
   if (!result.success) throw new Error(result.errorMessage ?? 'Extraction failed')
 }
 
-export async function runDetectDepsStep(
-  game: Game, installDir: string
-): Promise<Dependency[]> {
-  const { detectCompat } = await import('../domain/compat/detector')
+export async function runDetectDepsStep(game: Game, installDir: string): Promise<Dependency[]> {
+  const { detectCompat } = await import('../../domain/compat/detector')
   const { Gio } = imports.gi
   const dir = Gio.File.new_for_path(installDir)
   const enumerator = dir.enumerate_children('standard::name,standard::type', Gio.FileQueryInfoFlags.NONE, null)
@@ -39,9 +38,7 @@ export async function runDetectDepsStep(
 }
 
 export async function runInstallDepsStep(
-  deps: Dependency[],
-  installDir: string,
-  depInstaller: DependencyInstaller
+  deps: Dependency[], installDir: string, depInstaller: DependencyInstaller,
 ): Promise<void> {
   if (deps.length === 0) return
   const prefixPath = `${installDir}/prefix`
@@ -52,19 +49,16 @@ export async function runInstallDepsStep(
 }
 
 export async function runFindExeStep(installDir: string): Promise<string> {
-  const { findExecutable } = await import('../controller/executable-scanner')
+  const { findExecutable } = await import('../../controller/executable-scanner')
   const result = findExecutable(installDir)
   if (!result.path) throw new Error('No executable found in install directory')
   return result.path
 }
 
 export async function runRegisterStep(
-  gameId: GameID, installPath: string, db: DatabaseService, exePath: string | null
+  gameId: GameID, installPath: string, db: DatabaseService, exePath: string | null,
 ): Promise<void> {
-  await db.execute(
-    'UPDATE games SET installed = 1, install_path = //1 WHERE id = //2',
-    [installPath, gameId]
-  )
+  await db.execute('UPDATE games SET installed = 1, install_path = //1 WHERE id = //2', [installPath, gameId])
   if (exePath) {
     const existing = await db.getLaunchOptions(gameId)
     const env = { ...existing.env, exePath }
@@ -87,7 +81,7 @@ export function findInstallerExe(dir: string): string | null {
 export async function runInstallerStep(
   gameId: GameID, installDir: string, installerPath: string,
   launcher: Launcher,
-  onProgress?: (gameId: GameID, step: PipelineStep, current: number, total: number) => void,
+  onProgress?: ProgressFn,
 ): Promise<void> {
   const { GLib } = imports.gi
   onProgress?.(gameId, 'running-installer', 0, 100)

@@ -3,9 +3,6 @@
   "runtime": "org.gnome.Platform",
   "runtime-version": "48",
   "sdk": "org.gnome.Sdk",
-  "sdk-extensions": [
-    "org.freedesktop.Sdk.Extension.node22"
-  ],
   "command": "plundernome",
   "finish-args": [
     "--socket=wayland",
@@ -21,15 +18,13 @@
       "name": "libgxml",
       "buildsystem": "meson",
       "config-opts": [
-        "-Ddocs=false",
-        "-Dtests=false",
-        "-Dvapi=false"
+        "-Ddocs=false"
       ],
       "sources": [
         {
           "type": "archive",
-          "url": "https://gitlab.gnome.org/GNOME/gxml/-/archive/GXML_0_4_1/gxml-GXML_0_4_1.tar.gz",
-          "sha256": "5c0fcca82b8111b98ac4ed878dc673eab92f8b450685b28cb569e8fe2c2875ec"
+          "url": "https://gitlab.gnome.org/GNOME/gxml/-/archive/0.20.4/gxml-0.20.4.tar.gz",
+          "sha256": "237f5d3984b6aa7378bfa030b7dadfad43041720f097bb5b4104e84829d741a5"
         }
       ],
       "cleanup": ["/include", "/lib/pkgconfig", "/share/doc", "/share/man", "/share/gtk-doc"]
@@ -39,7 +34,7 @@
       "buildsystem": "simple",
       "build-commands": [
         "make -j$(nproc) 7z",
-        "install -Dm755 7z /app/bin/7z"
+        "install -Dm755 bin/7z /app/bin/7z"
       ],
       "sources": [{
         "type": "archive",
@@ -48,25 +43,82 @@
       }]
     },
     {
-      "name": "transmission-cli",
-      "buildsystem": "simple",
-      "build-commands": [
-        "install -Dm755 usr/bin/transmission-cli /app/bin/transmission-cli",
-        "install -Dm755 usr/bin/transmission-remote /app/bin/transmission-remote",
-        "install -Dm755 usr/bin/transmission-daemon /app/bin/transmission-daemon"
+      "name": "libevent",
+      "buildsystem": "cmake-ninja",
+      "config-opts": [
+        "-DEVENT__DISABLE_TESTS=ON",
+        "-DEVENT__DISABLE_REGRESS=ON",
+        "-DEVENT__DISABLE_SAMPLES=ON"
       ],
       "sources": [{
         "type": "archive",
-        "url": "https://github.com/transmission/transmission/releases/download/4.0.6/transmission-4.0.6.tar.xz",
-        "sha256": "2a38fe6d8a23991680b691c277a335f8875bdeca2b97c6b26b598bc9c7b0c45f"
+        "url": "https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz",
+        "sha256": "92e6de1be9ec176428fd2367677e61ceffc2ee1cb119035037a27d346b0403bb"
       }]
+    },
+    {
+      "name": "libdeflate",
+      "buildsystem": "cmake-ninja",
+      "config-opts": [
+        "-DLIBDEFLATE_BUILD_TESTS=OFF",
+        "-DLIBDEFLATE_BUILD_GZIP=OFF"
+      ],
+      "sources": [{
+        "type": "archive",
+        "url": "https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.23.tar.gz",
+        "sha256": "1ab18349b9fb0ce8a0ca4116bded725be7dcbfa709e19f6f983d99df1fb8b25f"
+      }]
+    },
+    {
+      "name": "transmission-cli",
+      "buildsystem": "simple",
+      "build-commands": [
+        "tar xzf miniupnpc.tar.gz --strip-components=1 -C third-party/miniupnpc",
+        "tar xzf libnatpmp.tar.gz --strip-components=1 -C third-party/libnatpmp",
+        "tar xzf dht.tar.gz --strip-components=1 -C third-party/dht",
+        "tar xzf libb64.tar.gz --strip-components=1 -C third-party/libb64",
+        "cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app -DENABLE_CLI=ON -DENABLE_DAEMON=ON -DENABLE_GTK=OFF -DENABLE_QT=OFF -DENABLE_NLS=OFF -DENABLE_TESTS=OFF -DINSTALL_DOC=OFF -DINSTALL_LIB=OFF -DWITH_SYSTEMD=OFF",
+        "ninja -C build",
+        "ninja -C build install"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://github.com/transmission/transmission/releases/download/4.0.6/transmission-4.0.6.tar.xz",
+          "sha256": "2a38fe6d8a23991680b691c277a335f8875bdeca2b97c6b26b598bc9c7b0c45f"
+        },
+        {
+          "type": "file",
+          "url": "https://github.com/transmission/miniupnpc/archive/e37cde82e8673a5e71bae43086828704fd5eeac1.tar.gz",
+          "sha256": "8f38c3ad6aa2e474a7eac2705eecb39ef37d1db383798d86f91c3e96a5c9feaf",
+          "dest-filename": "miniupnpc.tar.gz"
+        },
+        {
+          "type": "file",
+          "url": "https://github.com/transmission/libnatpmp/archive/4d3b9d87bbe7549830c212ce840600619abcf887.tar.gz",
+          "sha256": "180ca32b51b65006f3404e2bd7681b61915d84d05692ab0ef754f13ec9502eb1",
+          "dest-filename": "libnatpmp.tar.gz"
+        },
+        {
+          "type": "file",
+          "url": "https://github.com/transmission/dht/archive/015585510e402a057ec17142711ba2b568b5fd62.tar.gz",
+          "sha256": "8a66c8876132d5ca36dd988566ea99a747c72455da0bcc6332f362626865a797",
+          "dest-filename": "dht.tar.gz"
+        },
+        {
+          "type": "file",
+          "url": "https://github.com/transmission/libb64/archive/64ab5ed7693d7a063c43f9da64c7d8e4e9519ef4.tar.gz",
+          "sha256": "c4a9938fd6342e856fea58cfca735254751e8cfcc7c8bf3d15cc0f273ff945f6",
+          "dest-filename": "libb64.tar.gz"
+        }
+      ]
     },
     {
       "name": "unrar",
       "buildsystem": "simple",
       "build-commands": [
-        "make -C src -j$(nproc)",
-        "install -Dm755 src/unrar /app/bin/unrar"
+        "make -j$(nproc)",
+        "install -Dm755 unrar /app/bin/unrar"
       ],
       "sources": [{
         "type": "archive",
@@ -78,17 +130,22 @@
       "name": "plundernome",
       "buildsystem": "simple",
       "build-options": {
-        "append-path": "/usr/lib/sdk/node22/bin"
+        "build-args": ["--share=network"],
+        "env": {
+          "PATH": "/usr/lib/sdk/node22/bin:/usr/bin:/bin",
+          "npm_config_audit": "false",
+          "npm_config_fund": "false"
+        }
       },
       "build-commands": [
-        "npm install --no-audit --no-fund",
+        "npm install",
         "node scripts/build.mjs",
         "mkdir -p /app/bin /app/share/plundernome",
         "install -Dm755 dist/main.js /app/bin/plundernome",
         "cp src/ui/style.css /app/share/plundernome/style.css",
         "install -Dm644 flatpak/io.github.plundernome.desktop /app/share/applications/io.github.plundernome.desktop",
         "install -Dm644 flatpak/io.github.plundernome.metainfo.xml /app/share/metainfo/io.github.plundernome.metainfo.xml",
-        "install -Dm644 io.github.plundernome.gschema.xml /app/share/glib-2.0/schemas/io.github.plundernome.gschema.xml",
+        "install -Dm644 data/io.github.plundernome.gschema.xml /app/share/glib-2.0/schemas/io.github.plundernome.gschema.xml",
         "glib-compile-schemas /app/share/glib-2.0/schemas/",
         "install -Dm644 flatpak/icons/io.github.plundernome.svg /app/share/icons/hicolor/scalable/apps/io.github.plundernome.svg",
         "for s in 64 128; do install -Dm644 flatpak/icons/${s}x${s}/io.github.plundernome.png /app/share/icons/hicolor/${s}x${s}/apps/io.github.plundernome.png; done",

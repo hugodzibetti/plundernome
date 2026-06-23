@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   isRetryableError, isNonRetryableError, getRetryDelay,
   shouldRetry, MAX_RETRIES, RETRY_DELAYS,
-} from '../pipeline-retry-helpers'
+} from '../pipeline-executor/retry-utils'
 
 describe('pipeline-retry-helpers', () => {
   describe('isRetryableError', () => {

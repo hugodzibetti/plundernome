@@ -1,9 +1,11 @@
 import { loadAppCss } from '../window-css'
 import { createButton } from '../factory'
-import { BigCatalogView } from './catalog-view'
-import { BigLibraryView } from './library-view'
-import { BigDownloadsView } from './downloads-view'
-
+import { CatalogView } from '../views/catalog-view'
+import { LibraryView } from '../views/library-view'
+import { DownloadsView } from '../views/downloads-view'
+import { SettingsView } from '../views/settings-view'
+import { EmulatorView } from '../views/emulator-view'
+import type { ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IWindow } from '../../controller/view-interfaces'
 const { Gtk, Adw, GObject, Gio, GLib } = imports.gi
 
 export const BigPictureApp = GObject.registerClass({
@@ -28,14 +30,15 @@ export const BigPictureApp = GObject.registerClass({
 
 export const BigPictureWindow = GObject.registerClass({
   GTypeName: 'BigPictureWindow',
-}, class BigPictureWindow extends Adw.ApplicationWindow {
+}, class BigPictureWindow extends Adw.ApplicationWindow implements IWindow {
   private stack: GtkStack
-  private catalogView: AdwBin
-  private libraryView: AdwBin
-  private downloadsView: AdwBin
-  private __toastOverlay: AdwToastOverlay | null = null
+  private catalogView: ICatalogView
+  private libraryView: ILibraryView
+  private downloadsView: IDownloadsView
+  private settingsView: ISettingsView
+  private toastOverlay: AdwToastOverlay
 
-  constructor(app: unknown) {
+  constructor(app: AdwApplication) {
     super({ application: app })
     ;(this as unknown as { fullscreen(): void }).fullscreen()
     this.add_css_class('big-picture')
@@ -59,24 +62,23 @@ export const BigPictureWindow = GObject.registerClass({
     this.stack.set_vexpand(true)
     this.stack.set_hexpand(true)
 
-    this.catalogView = new BigCatalogView()
-    this.libraryView = new BigLibraryView()
-    this.downloadsView = new BigDownloadsView()
-    const settingsView = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
-    settingsView.add_css_class('big-picture-settings')
+    this.catalogView = new CatalogView()
+    this.libraryView = new LibraryView()
+    this.downloadsView = new DownloadsView()
+    this.settingsView = new SettingsView()
+    new EmulatorView()
 
-    this.stack.add_named(this.catalogView, 'catalog')
-    this.stack.add_named(this.libraryView, 'library')
-    this.stack.add_named(this.downloadsView, 'downloads')
-    this.stack.add_named(settingsView, 'settings')
+    this.stack.add_named(this.catalogView as unknown as GtkWidget, 'catalog')
+    this.stack.add_named(this.libraryView as unknown as GtkWidget, 'library')
+    this.stack.add_named(this.downloadsView as unknown as GtkWidget, 'downloads')
+    this.stack.add_named(this.settingsView as unknown as GtkWidget, 'settings')
     this.stack.set_visible_child_name('catalog')
 
-    const toastOverlay = new Adw.ToastOverlay()
-    toastOverlay.set_child(this.stack)
-    this.__toastOverlay = toastOverlay
+    this.toastOverlay = new Adw.ToastOverlay()
+    this.toastOverlay.set_child(this.stack)
 
     const outer = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
-    outer.append(toastOverlay)
+    outer.append(this.toastOverlay)
     outer.append(this.buildNavBar())
     toolbar.set_content(outer)
 
@@ -120,12 +122,29 @@ export const BigPictureWindow = GObject.registerClass({
     this.add_controller(controller)
   }
 
-  navigateTo(viewId: string): void { this.stack.set_visible_child_name(viewId) }
-  getCatalogView(): AdwBin { return this.catalogView }
-  getLibraryView(): AdwBin { return this.libraryView }
-  getDownloadsView(): AdwBin { return this.downloadsView }
+  navigateTo(viewId: string): void {
+    this.stack.set_visible_child_name(viewId)
+  }
+
+  getCatalogView(): ICatalogView { return this.catalogView }
+  getLibraryView(): ILibraryView { return this.libraryView }
+  getDownloadsView(): IDownloadsView { return this.downloadsView }
+  getSettingsView(): ISettingsView { return this.settingsView }
 
   showToast(title: string): void {
-    this.__toastOverlay?.add_toast(new Adw.Toast({ title }))
+    this.toastOverlay.add_toast(new Adw.Toast({ title }))
+  }
+
+  showActionToast(title: string, actionLabel: string, onAction: () => void): void {
+    const toast = new Adw.Toast({ title, priority: Adw.ToastPriority.HIGH })
+    toast.set_button_label(actionLabel)
+    toast.set_timeout(8)
+    const handler = toast.connect('button-clicked', () => { onAction(); toast.dismiss() })
+    toast.connect('dismissed', () => { try { toast.disconnect(handler) } catch {} })
+    this.toastOverlay.add_toast(toast)
+  }
+
+  showToastWithAction(title: string, actionLabel: string, onAction: () => void): void {
+    this.showActionToast(title, actionLabel, onAction)
   }
 })

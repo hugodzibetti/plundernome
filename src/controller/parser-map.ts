@@ -17,6 +17,16 @@ export function buildParsersMap(htmlParser: IHTMLParserService): Record<string, 
     'xatab',
     'repack-games',
     'repacklab',
+    'kaoskrew',
+    'mercs213',
+    'torrminatorr',
+    'gamecopyworld',
+    'tinrepacks',
+    'tapochek',
+    'rgmechanics',
+    'chovka',
+    'blackbox',
+    'scooter',
   ] as const;
   const map: Record<string, ParserFn> = {};
   for (const id of sourceIds) {

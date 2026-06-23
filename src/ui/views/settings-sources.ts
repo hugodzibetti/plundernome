@@ -1,21 +1,15 @@
 import { _t } from '../../domain/i18n';
-import { createButton } from '../factory';
+import { createButton, createSwitchRow } from '../factory';
+import { buildJsonFilter } from '../filter-helpers';
 
 const { Gtk, Adw } = imports.gi;
-
-function buildJsonFilter(): GtkFileFilter {
-  const f = new Gtk.FileFilter();
-  f.set_name('JSON Files (*.json)');
-  f.add_pattern('*.json');
-  return f;
-}
 
 export class SettingsSourcesView {
   readonly group: AdwPreferencesGroup;
   private reloadHandler: (() => void) | null = null;
   private addHandler: ((path: string) => void) | null = null;
   private toggleHandler: ((sourceId: string, enabled: boolean) => void) | null = null;
-  private sourceRows = new Map<string, { row: AdwActionRow; sw: GtkSwitch }>();
+  private sourceRows = new Map<string, AdwActionRow>();
 
   constructor() {
     this.group = new Adw.PreferencesGroup({ title: _t('settings.source-management') });
@@ -55,23 +49,20 @@ export class SettingsSourcesView {
   }
 
   setUserSources(sources: Array<{ id: string; path: string; enabled: boolean }>): void {
-    for (const [, entry] of this.sourceRows) {
-      this.group.remove(entry.row);
+    for (const [, row] of this.sourceRows) {
+      this.group.remove(row);
     }
     this.sourceRows.clear();
 
     for (const s of sources) {
-      const sw = new Gtk.Switch({ active: s.enabled, valign: Gtk.Align.CENTER });
-      const row = new Adw.ActionRow({ title: s.id, subtitle: s.path });
-      row.add_suffix(sw);
-      row.set_activatable_widget(sw);
-      this.group.add(row);
-      this.sourceRows.set(s.id, { row, sw });
-
-      const id = s.id;
-      sw.connect('notify::active', () => {
-        this.toggleHandler?.(id, sw.get_active());
+      const row = createSwitchRow({
+        title: s.id,
+        subtitle: s.path,
+        active: s.enabled,
+        onToggle: (active) => this.toggleHandler?.(s.id, active),
       });
+      this.group.add(row);
+      this.sourceRows.set(s.id, row);
     }
   }
 

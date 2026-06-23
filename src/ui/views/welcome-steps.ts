@@ -7,7 +7,7 @@ const { Gtk, Adw } = imports.gi
 
 export function buildWelcomeHeader(): GtkBox {
   const headerBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 8 })
-  const icon = new Gtk.Image({ icon_name: 'applications-games-symbolic', pixel_size: 64 })
+  const icon = new Gtk.Image({ icon_name: 'applications-games-symbolic', pixel_size: 64, valign: Gtk.Align.CENTER })
   icon.add_css_class('welcome-icon')
   headerBox.append(icon)
   const title = new Gtk.Label({ label: _t('welcome.title'), xalign: 0 })

@@ -1,124 +1,120 @@
-import { setupWindowShortcuts } from './shortcuts'
-import { PAGE_DEFS, type PageDef } from './window-page-defs'
 import { loadAppCss } from './window-css'
-import { buildSidebarAndPages } from './window-page-builder'
-import type { ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IEmulatorView } from '../controller/view-interfaces'
 import { createButton } from './factory'
+import { setupWindowShortcuts } from './shortcuts'
 import { WelcomeView } from './views/welcome-view'
+import { CatalogView } from './views/catalog-view'
+import { LibraryView } from './views/library-view'
+import { DownloadsView } from './views/downloads-view'
+import { SettingsView } from './views/settings-view'
+import { EmulatorView } from './views/emulator-view'
+import type { ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IEmulatorView } from '../controller/view-interfaces'
 import { SettingsManager, GSETTINGS_KEYS } from '../services/gsettings'
 
 const { Gtk, Adw, GObject } = imports.gi
+
+function mkSidebarRow(name: string, icon: string, label: string): GtkListBoxRow {
+  const row = new Gtk.ListBoxRow({ css_classes: ['sidebar-row'], name })
+  const box = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 6 })
+  box.append(new Gtk.Image({ icon_name: icon, pixel_size: 16, valign: Gtk.Align.CENTER }))
+  box.append(new Gtk.Label({ label, xalign: 0 }))
+  row.set_child(box)
+  return row
+}
 
 export const PlundernomeWindow = GObject.registerClass({
   GTypeName: 'PlundernomeWindow',
 }, class PlundernomeWindow extends Adw.ApplicationWindow {
   private stack: GtkStack
-  private header: AdwHeaderBar
-  private contentNavPage: AdwNavigationPage
-  private currentSuffix: unknown = null
-  private __toastOverlay: AdwToastOverlay | null = null
-  private catalogView: ICatalogView | null = null
-  private libraryView: ILibraryView | null = null
-  private downloadsView: IDownloadsView | null = null
-  private settingsView: ISettingsView | null = null
-  private emulatorView: IEmulatorView | null = null
+  private catalogView: ICatalogView
+  private libraryView: ILibraryView
+  private downloadsView: IDownloadsView
+  private settingsView: ISettingsView
+  private emulatorView: IEmulatorView
+  private sidebar: GtkListBox & { unselect_all(): void }
+  private toastOverlay: AdwToastOverlay
 
   constructor(app: unknown) {
     super({ application: app, title: 'Plundernome', default_width: 960, default_height: 560 })
-
     loadAppCss(this.get_display() as GdkDisplay)
 
     const toolbar = new Adw.ToolbarView()
     this.set_content(toolbar)
-    this.header = new Adw.HeaderBar()
-    this.header.set_title_widget(new Adw.WindowTitle({ title: 'Plundernome' }))
+    const header = new Adw.HeaderBar()
+    toolbar.add_top_bar(header)
 
     const searchBtn = createButton({ iconName: 'edit-find-symbolic', tooltip: 'Search (Ctrl+F)', onClick: () => (this.stack.get_child_by_name('catalog') as ICatalogView | null)?.focusSearch?.() })
-    this.header.pack_start(searchBtn)
-    toolbar.add_top_bar(this.header)
+    header.pack_start(searchBtn)
+    header.set_title_widget(new Adw.WindowTitle({ title: 'Plundernome' }))
 
-    const { sidebar, stack: pageStack, catalogView, libraryView, downloadsView, settingsView, emulatorView } = buildSidebarAndPages((id) => this.navigateTo(id))
-    this.stack = pageStack
-    this.catalogView = catalogView
-    this.libraryView = libraryView
-    this.downloadsView = downloadsView
-    this.settingsView = settingsView
-    this.emulatorView = emulatorView
+    const downloadsBtn = createButton({ iconName: 'folder-download-symbolic', tooltip: 'Downloads', onClick: () => { this.navigateTo('downloads'); this.sidebar.unselect_all() } })
+    header.pack_end(downloadsBtn)
+    const settingsBtn = createButton({ iconName: 'preferences-system-symbolic', tooltip: 'Settings', onClick: () => { this.navigateTo('settings'); this.sidebar.unselect_all() } })
+    header.pack_end(settingsBtn)
 
-    const sidebarPage = new Adw.NavigationPage({ title: 'Plundernome', child: sidebar })
-    this.contentNavPage = new Adw.NavigationPage({ title: 'Catalog', child: this.stack })
+    this.sidebar = new Gtk.ListBox({ css_classes: ['navigation-sidebar'] }) as GtkListBox & { unselect_all(): void }
+    this.sidebar.append(mkSidebarRow('catalog', 'package-x-generic-symbolic', 'Catalog'))
+    this.sidebar.append(mkSidebarRow('library', 'emblem-library-symbolic', 'Library'))
+
+    this.stack = new Gtk.Stack()
+    this.stack.set_hexpand(true); this.stack.set_vexpand(true)
+    this.catalogView = new CatalogView()
+    this.stack.add_named(this.catalogView, 'catalog')
+    this.libraryView = new LibraryView()
+    this.stack.add_named(this.libraryView, 'library')
+    this.downloadsView = new DownloadsView()
+    this.stack.add_named(this.downloadsView, 'downloads')
+    this.settingsView = new SettingsView()
+    this.stack.add_named(this.settingsView, 'settings')
+    this.emulatorView = new EmulatorView()
+    this.stack.add_named(this.emulatorView, 'emulators')
+    this.stack.set_visible_child_name('catalog')
+
+    const sidebarPage = new Adw.NavigationPage({ title: 'Plundernome', child: this.sidebar })
+    const contentPage = new Adw.NavigationPage({ title: 'Catalog', child: this.stack })
     const splitView = new Adw.NavigationSplitView()
-    splitView.set_sidebar(sidebarPage); splitView.set_content(this.contentNavPage)
+    splitView.set_sidebar(sidebarPage); splitView.set_content(contentPage)
+
+    this.toastOverlay = new Adw.ToastOverlay()
 
     const settings = new SettingsManager()
     const isFirstRun = !settings.getBool(GSETTINGS_KEYS.FIRST_RUN_COMPLETE)
 
-    const rootStack = new Gtk.Stack()
-    rootStack.set_hexpand(true); rootStack.set_vexpand(true)
-
     if (isFirstRun) {
-      this.set_default_size(680, 420)
+      const rootStack = new Gtk.Stack()
+      rootStack.set_hexpand(true); rootStack.set_vexpand(true)
       const welcomeView = new WelcomeView((msg) => this.showToast(msg))
       welcomeView.onWizardComplete(() => {
         rootStack.set_visible_child_name('app')
         this.stack.set_visible_child_name('catalog')
-        const def = PAGE_DEFS.find(p => p.id === 'catalog')
-        if (def) { this.contentNavPage.set_title(def.label); this.updateHeaderSuffix(def) }
         this.set_default_size(960, 560)
         this.showToast('Setup complete! Browse the catalog to find games.')
-        sidebar.select_row(sidebar.get_row_at_index(0))
+        this.sidebar.select_row(this.sidebar.get_row_at_index(0))
       })
       rootStack.add_named(welcomeView, 'welcome')
-      rootStack.set_visible_child_name('welcome')
+      rootStack.add_named(splitView, 'app')
+      this.toastOverlay.set_child(rootStack)
+    } else {
+      this.toastOverlay.set_child(splitView)
     }
-    rootStack.add_named(splitView, 'app')
-    if (!isFirstRun) rootStack.set_visible_child_name('app')
 
-    const toastOverlay = new Adw.ToastOverlay()
-    toastOverlay.set_child(rootStack)
-    toolbar.set_content(toastOverlay); this.__toastOverlay = toastOverlay
-
-    sidebar.connect('row-activated', (_l: unknown, row: unknown) => {
+    toolbar.set_content(this.toastOverlay)
+    this.sidebar.connect('row-activated', (_l: unknown, row: unknown) => {
       const id = (row as GtkListBoxRow).get_name()
-      this.stack.set_visible_child_name(id)
-      const def = PAGE_DEFS.find(p => p.id === id)
-      if (!def) return
-      this.contentNavPage.set_title(def.label)
-      this.header.set_title_widget(new Adw.WindowTitle({ title: def.label })); this.updateHeaderSuffix(def)
+      this.navigateTo(id)
     })
-
     setupWindowShortcuts(this, this.stack)
-    if (!isFirstRun) {
-      sidebar.select_row(sidebar.get_row_at_index(0))
-      this.stack.set_visible_child_name('catalog')
-      this.updateHeaderSuffix(PAGE_DEFS[0]!)
-    }
-  }
-
-  private updateHeaderSuffix(def: PageDef): void {
-    if (this.currentSuffix) { this.header.remove(this.currentSuffix); this.currentSuffix = null }
-    if (def.headerSuffix) {
-      this.currentSuffix = def.headerSuffix(this)
-      this.header.pack_end(this.currentSuffix)
-    }
+    if (!isFirstRun) this.sidebar.select_row(this.sidebar.get_row_at_index(0))
   }
 
   navigateTo(viewId: string): void {
     this.stack.set_visible_child_name(viewId)
-    const def = PAGE_DEFS.find(p => p.id === viewId)
-    if (def) {
-      this.contentNavPage.set_title(def.label)
-      this.header.set_title_widget(new Adw.WindowTitle({ title: def.label }))
-      this.updateHeaderSuffix(def)
-    }
+    if (!['catalog', 'library'].includes(viewId)) this.sidebar.unselect_all()
   }
 
   showToast(title: string, priority: 'normal' | 'high' = 'normal', timeout?: number): void {
-    const toast = new Adw.Toast({
-      title, priority: priority === 'high' ? Adw.ToastPriority.HIGH : Adw.ToastPriority.NORMAL,
-    })
+    const toast = new Adw.Toast({ title, priority: priority === 'high' ? Adw.ToastPriority.HIGH : Adw.ToastPriority.NORMAL })
     if (timeout) toast.set_timeout(timeout)
-    this.__toastOverlay?.add_toast(toast)
+    this.toastOverlay.add_toast(toast)
   }
 
   showToastWithAction(title: string, actionLabel: string, onAction: () => void): void {
@@ -126,17 +122,17 @@ export const PlundernomeWindow = GObject.registerClass({
     toast.set_button_label(actionLabel)
     toast.set_timeout(8)
     const handler = toast.connect('button-clicked', () => { onAction(); toast.dismiss() })
-    toast.connect('dismissed', () => { try { toast.disconnect(handler) } catch { } })
-    this.__toastOverlay?.add_toast(toast)
+    toast.connect('dismissed', () => { try { toast.disconnect(handler) } catch {} })
+    this.toastOverlay.add_toast(toast)
   }
 
   showActionToast(title: string, actionLabel: string, onAction: () => void): void {
     this.showToastWithAction(title, actionLabel, onAction)
   }
 
-  getCatalogView(): ICatalogView { return this.catalogView!; }
-  getLibraryView(): ILibraryView { return this.libraryView!; }
-  getDownloadsView(): IDownloadsView { return this.downloadsView!; }
-  getSettingsView(): ISettingsView { return this.settingsView!; }
-  getEmulatorsView(): IEmulatorView { return this.emulatorView!; }
+  getCatalogView(): ICatalogView { return this.catalogView }
+  getLibraryView(): ILibraryView { return this.libraryView }
+  getDownloadsView(): IDownloadsView { return this.downloadsView }
+  getSettingsView(): ISettingsView { return this.settingsView }
+  getEmulatorsView(): IEmulatorView { return this.emulatorView }
 })

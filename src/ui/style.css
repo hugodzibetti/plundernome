@@ -299,6 +299,10 @@ switch {
   min-width: 200px;
   min-height: 128px;
 }
+.sizing-cover-lg {
+  min-width: 280px;
+  min-height: 180px;
+}
 .sizing-cover-pic {
   min-width: 200px;
   min-height: 128px;
@@ -397,13 +401,6 @@ switch {
 }
 
 /* ——— Game Card ——— */
-.game-card-overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
 
 .game-card-content {
   padding: 8px;
@@ -434,7 +431,6 @@ switch {
 
 .error-stack-clamp {
   min-width: 300px;
-  max-height: 200px;
 }
 
 /* ——— Entry Row & Popovers ——— */
@@ -477,7 +473,8 @@ switch {
 
 /* ——— Settings Groups ——— */
 .settings-backup-group,
-.settings-sources-group {
+.settings-sources-group,
+.settings-about-group {
   margin: 6px 0;
 }
 
@@ -571,3 +568,42 @@ switch {
 .game-detail-meta { margin: 4px 0; opacity: 0.8; }
 .game-detail-desc { margin: 8px 0; line-height: 1.4; }
 .game-detail-screenshot { min-width: 180px; min-height: 100px; border-radius: 4px; margin: 2px; }
+
+/* ——— Catalog View ——— */
+.catalog-content { padding: 12px; }
+.catalog-flowbox { margin: 6px; }
+.catalog-error { margin: 12px; }
+.catalog-loading { margin: 12px; }
+.game-card-cover { background: shade(@card_bg_color, 0.85); border-radius: 12px; }
+.game-card-emoji { font-size: 48px; }
+.game-card-title { font-weight: 600; font-size: 14px; padding: 4px 8px; }
+
+/* ——— Library View ——— */
+.library-content { padding: 12px; }
+.library-flowbox { margin: 6px; }
+.library-card { margin: 8px; min-width: 280px; border-radius: 16px; background: @card_bg_color; }
+.library-card-cover { background: shade(@card_bg_color, 0.85); border-radius: 12px; }
+.library-card-emoji { font-size: 48px; }
+.library-card-title { font-weight: 600; font-size: 14px; padding: 4px 8px; }
+.library-card-actions { margin-top: 8px; }
+
+/* ——— Downloads View ——— */
+.downloads-content { padding: 12px; }
+.downloads-active-list { margin: 6px 0; }
+.downloads-active-row { padding: 8px 0; }
+.downloads-completed-list { margin: 6px 0; }
+.downloads-completed-row { padding: 4px 0; }
+.downloads-progress { margin: 4px 0; min-height: 6px; }
+
+/* ——— Mirror Dialog ——— */
+.mirror-select-dialog { min-width: 360px; }
+.mirror-dropdown { margin: 6px 0; }
+
+/* ——— Emulator View ——— */
+.emulator-view { padding: 12px; }
+.emulator-outer { }
+.emulator-platform-list { margin: 6px 0; }
+.emulator-rom-grid { margin: 6px; }
+.emulator-rom-card { margin: 4px; padding: 8px; min-width: 180px; border-radius: 8px; background: @card_bg_color; }
+.emulator-rom-name { font-weight: 600; }
+.emulator-scan-progress { margin: 6px 0; min-height: 6px; }

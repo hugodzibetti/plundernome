@@ -1,14 +1,8 @@
 import { _t } from '../../domain/i18n';
 import { createButton } from '../factory';
+import { buildJsonFilter } from '../filter-helpers';
 
 const { Gtk, Adw } = imports.gi;
-
-function buildJsonFilter(): GtkFileFilter {
-  const f = new Gtk.FileFilter();
-  f.set_name('JSON Files (*.json)');
-  f.add_pattern('*.json');
-  return f;
-}
 
 function getParentWidget(w: AdwPreferencesGroup): GtkWidget {
   return w.get_root() as GtkWidget;

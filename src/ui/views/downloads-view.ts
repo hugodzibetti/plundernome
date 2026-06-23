@@ -1,142 +1,143 @@
-import { DownloadRowWidget } from '../widgets/download-row';
-import { buildCompletedRow } from './downloads-completed-row';
-import { buildDownloadsPage, updateDownloadsSummary, clearGtkListBox } from './downloads-summary';
-import { setPipelineSteps, removePipelineTimeline } from './downloads-timeline';
-import type { Download, QueueAction } from '../../domain/models';
-import { reorderDownloads } from '../../domain/queue';
-import { _t } from '../../domain/i18n';
-import type { StepDisplay } from '../widgets/pipeline-timeline';
+import type { Download } from '../../domain/models'
+import { createButton } from '../factory'
+import { buildEmptyState } from '../templates/empty-state'
+import { createListContent } from '../templates'
 
-const { Gtk, Adw, GObject } = imports.gi;
+const { Gtk, Adw, GObject } = imports.gi
 
 export const DownloadsView = GObject.registerClass(
-  {
-    GTypeName: 'DownloadsView',
-  },
+  { GTypeName: 'DownloadsView' },
   class DownloadsView extends Adw.Bin {
-    private activeList: GtkListBox;
-    private completedList: GtkListBox;
-    private stack: GtkStack;
-    private summaryBox: GtkBox;
-    private summaryLabel: GtkLabel;
-    private speedLabel: GtkLabel;
-    private activeDownloads: Download[] = [];
-    private widgetMap: Map<string, unknown> = new Map();
-    private onAction: ((action: QueueAction, downloadId: string) => void) | null = null;
-    private retryHandler: ((downloadId: string) => void) | null = null;
-    private timelineMap = new Map<string, unknown>();
-    private browseCatalogHandler: (() => void) | null = null;
+    private activeList: GtkListBox
+    private completedList: GtkListBox
+    private stack: GtkStack
+    private activeRows = new Map<string, { widget: GtkWidget; update: (d: Download) => void }>()
+    private actionHandler: ((action: string, downloadId: string) => void) | null = null
+    private retryHandler: ((downloadId: string) => void) | null = null
+    private browseHandler: (() => void) | null = null
 
     constructor() {
-      super();
-      this.add_css_class('downloads-view');
-      const built = buildDownloadsPage(
-        () => this.clearCompletedDownloads(),
-        this.browseCatalogHandler,
-      );
-      this.summaryBox = built.summaryBox;
-      this.summaryLabel = built.summaryLabel;
-      this.speedLabel = built.speedLabel;
-      this.activeList = built.activeList;
-      this.completedList = built.completedList;
-      this.stack = built.stack;
-      this.set_child(built.stack);
-      this.updateSummary();
-    }
+      super()
+      this.add_css_class('downloads-view')
 
-    onQueueAction(cb: (action: QueueAction, downloadId: string) => void): void {
-      this.onAction = cb;
-    }
+      this.activeList = createListContent()
+      this.activeList.add_css_class('downloads-active-list')
+      this.completedList = createListContent()
+      this.completedList.add_css_class('downloads-completed-list')
 
-    onRetryDownload(cb: (downloadId: string) => void): void {
-      this.retryHandler = cb;
-    }
+      const activeGroup = new Adw.PreferencesGroup({ title: 'Active Downloads' })
+      activeGroup.add(this.activeList)
+      const completedGroup = new Adw.PreferencesGroup({ title: 'Completed' })
+      completedGroup.add(this.completedList)
 
-    onBrowseCatalog(cb: () => void): void {
-      this.browseCatalogHandler = cb;
-    }
+      const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 12 })
+      content.append(activeGroup)
+      content.append(completedGroup)
+      content.add_css_class('downloads-content')
 
-    clearCompletedDownloads(): void {
-      clearGtkListBox(this.completedList);
-      this.updateSummary();
-    }
+      const emptyPage = buildEmptyState({
+        icon: '📥',
+        title: 'No active downloads',
+        description: 'Downloaded games will appear here',
+        actionLabel: 'Browse Catalog',
+        onAction: () => this.browseHandler?.(),
+      })
 
-    private handleAction = (action: QueueAction, downloadId: string, extra?: number) => {
-      if (action === 'reorder' && extra !== undefined) {
-        const idx = this.activeDownloads.findIndex((d) => d.id === downloadId);
-        if (idx === -1) return;
-        const toIndex = idx + extra;
-        const reordered = reorderDownloads(this.activeDownloads, idx, toIndex);
-        if (reordered !== this.activeDownloads) {
-          this.activeDownloads = reordered;
-          clearGtkListBox(this.activeList);
-          this.widgetMap.clear();
-          for (const dl of this.activeDownloads) {
-            const row = new DownloadRowWidget(dl, this.handleAction);
-            this.widgetMap.set(dl.id, row);
-            this.activeList.append(row);
-          }
-        }
-      }
-      this.onAction?.(action, downloadId);
-    };
+      this.stack = new Gtk.Stack()
+      this.stack.set_vexpand(true)
+      this.stack.add_named(content, 'content')
+      this.stack.add_named(emptyPage, 'empty')
+      this.stack.set_visible_child_name('empty')
+      this.set_child(this.stack)
+    }
 
     addDownload(download: Download): void {
-      this.stack.set_visible_child_name('content');
-      if (['queued', 'downloading', 'verifying', 'paused', 'resuming'].includes(download.status)) {
-        this.activeDownloads.push(download);
-        this.activeList.append(new DownloadRowWidget(download, this.handleAction));
-        this.widgetMap.set(download.id, this.activeList.get_last_child());
-      } else {
-        this.completedList.append(buildCompletedRow(download, this.retryHandler));
-      }
-      this.updateSummary();
+      const { widget, update } = this.buildActiveRow(download)
+      this.activeRows.set(download.id, { widget, update })
+      this.activeList.append(widget)
+      this.stack.set_visible_child_name('content')
     }
 
     updateDownload(download: Download): void {
-      const widget = this.widgetMap.get(download.id);
-      if (!widget) return;
-      if (['completed', 'failed'].includes(download.status)) {
-        this.activeList.remove(widget);
-        this.widgetMap.delete(download.id);
-        this.activeDownloads = this.activeDownloads.filter((d) => d.id !== download.id);
-        this.completedList.append(buildCompletedRow(download, this.retryHandler));
-      } else {
-        const idx = this.activeDownloads.findIndex((d) => d.id === download.id);
-        if (idx !== -1) this.activeDownloads[idx] = download;
-        (widget as { update(dl: Download): void }).update(download);
+      const existing = this.activeRows.get(download.id)
+      if (existing) {
+        if (['completed', 'failed'].includes(download.status)) {
+          this.activeList.remove(existing.widget)
+          this.activeRows.delete(download.id)
+          this.addCompletedRow(download)
+        } else {
+          existing.update(download)
+        }
       }
-      this.updateSummary();
     }
 
-    removeDownload(id: string): void {
-      const widget = this.widgetMap.get(id);
-      if (widget) {
-        this.activeList.remove(widget);
-        this.widgetMap.delete(id);
+    removeDownload(downloadId: string): void {
+      const existing = this.activeRows.get(downloadId)
+      if (existing) {
+        this.activeList.remove(existing.widget)
+        this.activeRows.delete(downloadId)
       }
-      this.activeDownloads = this.activeDownloads.filter((d) => d.id !== id);
-      removePipelineTimeline(id, this.timelineMap);
-      this.updateSummary();
     }
 
-    setPipelineSteps(downloadId: string, steps: StepDisplay[]): void {
-      setPipelineSteps(downloadId, steps, this.timelineMap, this.widgetMap);
+    private buildActiveRow(download: Download): { widget: GtkWidget; update: (d: Download) => void } {
+      const box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4 })
+      box.add_css_class('downloads-active-row')
+      const nameLbl = new Gtk.Label({ label: download.name, xalign: 0 })
+      nameLbl.add_css_class('title-4')
+      box.append(nameLbl)
+      const progressBar = new Gtk.ProgressBar()
+      progressBar.add_css_class('downloads-progress')
+      progressBar.set_fraction(download.progress)
+      box.append(progressBar)
+      const infoBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 6 })
+      const pctLbl = new Gtk.Label({ label: `${Math.round(download.progress * 100)}%`, xalign: 0 })
+      pctLbl.add_css_class('caption')
+      infoBox.append(pctLbl)
+      const speedLbl = new Gtk.Label({ label: this.formatSpeed(download.speed), xalign: 1 })
+      speedLbl.add_css_class('caption')
+      infoBox.append(speedLbl)
+      box.append(infoBox)
+      return {
+        widget: box,
+        update: (d: Download) => {
+          progressBar.set_fraction(d.progress)
+          pctLbl.set_label(`${Math.round(d.progress * 100)}%`)
+          speedLbl.set_label(this.formatSpeed(d.speed))
+        },
+      }
     }
 
-    getActiveDownloads(): Download[] {
-      return [...this.activeDownloads];
+    private addCompletedRow(download: Download): void {
+      const row = new Adw.ActionRow({ title: download.name, subtitle: download.status })
+      row.add_css_class('downloads-completed-row')
+      if (download.status === 'failed') {
+        row.add_suffix(createButton({
+          iconName: 'view-refresh-symbolic',
+          tooltip: 'Retry',
+          onClick: () => this.retryHandler?.(download.id),
+        }))
+      }
+      this.completedList.append(row)
     }
 
-    private updateSummary(): void {
-      updateDownloadsSummary(
-        this.activeDownloads,
-        this.summaryLabel,
-        this.speedLabel,
-        this.activeList,
-        this.completedList,
-        this.stack,
-      );
+    private formatSpeed(bytesPerSec: number): string {
+      if (bytesPerSec === 0) return ''
+      if (bytesPerSec > 1e6) return `${(bytesPerSec / 1e6).toFixed(1)} MB/s`
+      if (bytesPerSec > 1e3) return `${(bytesPerSec / 1e3).toFixed(0)} KB/s`
+      return `${bytesPerSec} B/s`
     }
+
+    clearCompletedDownloads(): void {
+      let child = this.completedList.get_first_child() as GtkWidget | null
+      while (child) {
+        const next = child.get_next_sibling() as GtkWidget | null
+        this.completedList.remove(child)
+        child = next
+      }
+    }
+
+    onQueueAction(cb: (action: string, downloadId: string) => void): void { this.actionHandler = cb }
+    onRetryDownload(cb: (downloadId: string) => void): void { this.retryHandler = cb }
+    onBrowseCatalog(cb: () => void): void { this.browseHandler = cb }
   },
-);
+)

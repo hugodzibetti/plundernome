@@ -44,6 +44,7 @@ export const EmulatorRow = GObject.registerClass(
       const icon = new Gtk.Image({
         icon_name: ICON_MAP[platform.platformId] ?? 'application-x-executable-symbolic',
         pixel_size: 24,
+        valign: Gtk.Align.CENTER,
       });
       icon.add_css_class('emulator-row-icon');
       this.add_prefix(icon);
