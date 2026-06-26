@@ -87,4 +87,11 @@ export async function runMigrations(
     )
     await execute('INSERT INTO schema_version (version) VALUES (//1)', [8])
   }
+  if (cur < 9) {
+    try {
+      await execute("CREATE TABLE IF NOT EXISTS collections (id TEXT PRIMARY KEY, name TEXT NOT NULL, created_at TEXT DEFAULT (datetime('now')))")
+      await execute("CREATE TABLE IF NOT EXISTS collection_games (collection_id TEXT NOT NULL, game_id TEXT NOT NULL, added_at TEXT DEFAULT (datetime('now')), PRIMARY KEY (collection_id, game_id), FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE CASCADE, FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE)")
+    } catch {}
+    await execute('INSERT INTO schema_version (version) VALUES (//1)', [9])
+  }
 }

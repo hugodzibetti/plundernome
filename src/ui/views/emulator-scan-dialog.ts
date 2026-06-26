@@ -1,3 +1,5 @@
+import { _t } from '../../domain/i18n'
+
 const { Gtk, Adw, GObject } = imports.gi;
 
 export const EmulatorScanDialog = GObject.registerClass(
@@ -7,14 +9,14 @@ export const EmulatorScanDialog = GObject.registerClass(
 
     constructor() {
       const props: Record<string, unknown> = {
-        heading: 'Select ROM Folder',
-        body: 'Choose a folder containing ROM files to scan.',
+        heading: _t('emulator.scan.title'),
+        body: _t('emulator.scan.body'),
         close_response: 'cancel',
       };
       super(props);
       this.add_css_class('emulator-scan-dialog');
-      this.add_response('cancel', 'Cancel');
-      this.add_response('browse', 'Browse…');
+      this.add_response('cancel', _t('common.cancel'));
+      this.add_response('browse', _t('common.browse'));
       this.set_response_appearance('browse', Adw.ResponseAppearance.SUGGESTED);
       this.connect('response', (_d: unknown, resp: string) => {
         if (resp === 'browse') this.pickFolder();
@@ -27,7 +29,7 @@ export const EmulatorScanDialog = GObject.registerClass(
       if (!root) return;
       const picker = new Gtk.FileChooserNative({
         action: Gtk.FileChooserAction.SELECT_FOLDER,
-        title: 'Select ROM Folder',
+        title: _t('emulator.scan.title'),
         transient_for: root,
       });
       picker.connect('response', (_d: unknown, response: number) => {

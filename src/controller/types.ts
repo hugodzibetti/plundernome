@@ -1,5 +1,5 @@
 import type {
-  ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IWindow, IEmulatorView,
+  IHomeView, ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IWindow, IEmulatorView,
 } from './view-interfaces'
 import type { IDialogService, ILaunchOptionsEditor } from './types-dialog'
 
@@ -9,6 +9,7 @@ export interface IAppController {
 }
 
 export interface ControllerDeps {
+  homeView: IHomeView
   catalogView: ICatalogView
   libraryView: ILibraryView
   downloadsView: IDownloadsView

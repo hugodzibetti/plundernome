@@ -1,4 +1,5 @@
 import type { Download } from '../../domain/models'
+import { _t } from '../../domain/i18n'
 import { createButton } from '../factory'
 import { buildEmptyState } from '../templates/empty-state'
 import { createListContent } from '../templates'

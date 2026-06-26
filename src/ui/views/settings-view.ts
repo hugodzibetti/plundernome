@@ -4,6 +4,7 @@ import type { SyncPeer } from '../../services/sync-service'
 import type { LogEntry, LogFilter } from '../../services/database'
 import { ErrorLogView } from '../widgets/error-log-view'
 import type { SourceHealth } from '../../services/types'
+import { _t } from '../../domain/i18n'
 import { SettingsSourcesView } from './settings-sources'
 import { SettingsBackupView } from './settings-backup'
 import { DownloadSettingsGroup } from '../widgets/download-settings-group'
@@ -48,9 +49,14 @@ export const SettingsView = GObject.registerClass(
       page.add(this.lanGroup.group)
       page.add(new AppearanceGroup().group)
 
-      const abGroup = new Adw.PreferencesGroup({ title: 'About' })
+      const abGroup = new Adw.PreferencesGroup({ title: _t('settings.about') })
       abGroup.add_css_class('settings-about-group')
-      abGroup.add(new Adw.ActionRow({ title: 'Plundernome', subtitle: 'v0.1.0' }))
+      const aboutRow = new Adw.ActionRow({ title: _t('about.title'), subtitle: _t('about.description') })
+      abGroup.add(aboutRow)
+      const verRow = new Adw.ActionRow({ title: _t('about.version'), subtitle: '0.1.0' })
+      abGroup.add(verRow)
+      const licenseRow = new Adw.ActionRow({ title: _t('about.license') })
+      abGroup.add(licenseRow)
       page.add(abGroup)
 
       this.errorLogView = new ErrorLogView()

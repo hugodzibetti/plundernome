@@ -48,6 +48,7 @@ export const PlundernomeApp = GObject.registerClass(
       const dialogService = new DialogServiceImpl()
       dialogService.setParent(win as unknown as GtkWidget)
       this.controller = new AppController({
+        homeView: win.getHomeView(),
         catalogView: win.getCatalogView(),
         libraryView: win.getLibraryView(),
         downloadsView: win.getDownloadsView(),

@@ -5,7 +5,7 @@ import { LibraryView } from '../views/library-view'
 import { DownloadsView } from '../views/downloads-view'
 import { SettingsView } from '../views/settings-view'
 import { EmulatorView } from '../views/emulator-view'
-import type { ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IWindow } from '../../controller/view-interfaces'
+import type { IHomeView, ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IWindow } from '../../controller/view-interfaces'
 const { Gtk, Adw, GObject, Gio, GLib } = imports.gi
 
 export const BigPictureApp = GObject.registerClass({
@@ -126,6 +126,7 @@ export const BigPictureWindow = GObject.registerClass({
     this.stack.set_visible_child_name(viewId)
   }
 
+  getHomeView(): IHomeView { return this.catalogView as unknown as IHomeView }
   getCatalogView(): ICatalogView { return this.catalogView }
   getLibraryView(): ILibraryView { return this.libraryView }
   getDownloadsView(): IDownloadsView { return this.downloadsView }

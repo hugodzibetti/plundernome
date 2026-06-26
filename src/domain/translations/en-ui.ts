@@ -72,6 +72,9 @@ export const enUiTranslations: Record<string, string> = {
   'launch-options.prefix-desc': 'Each game has its own isolated prefix',
   'launch-options.prefix-path': 'Prefix Path',
 
+  'emulator.scan.title': 'Select ROM Folder',
+  'emulator.scan.body': 'Choose a folder containing ROM files to scan.',
+
   'welcome.wine-not-found': 'Not found — set manually in Settings',
   'welcome.wine-not-found-browse': 'Wine not found — use Browse to set path manually',
 

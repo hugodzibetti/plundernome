@@ -607,3 +607,12 @@ switch {
 .emulator-rom-card { margin: 4px; padding: 8px; min-width: 180px; border-radius: 8px; background: @card_bg_color; }
 .emulator-rom-name { font-weight: 600; }
 .emulator-scan-progress { margin: 6px 0; min-height: 6px; }
+
+/* ——— Home View ——— */
+.home-view { padding: 12px; }
+.home-content { margin: 6px 0; }
+.home-header { margin: 6px 0; }
+.home-title { font-size: 1.4em; font-weight: bold; }
+.home-actions { margin: 8px 0; padding: 4px; }
+.home-section { margin: 10px 0; }
+.home-section-title { font-size: 1.1em; font-weight: 600; padding: 4px 0; color: @theme_dim_label_color; }

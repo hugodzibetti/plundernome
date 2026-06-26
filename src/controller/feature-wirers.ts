@@ -8,6 +8,7 @@ import { wireMetadataEnrichment } from './metadata-wirer'
 import { wirePipelineEvents } from './pipeline-wirer'
 import { wireSources, wireBackup } from './settings-wirer'
 import { fetchProtonRatingsBg, startHealthChecks } from './health-wirer'
+import { computeRecommendations } from '../services/recommendations'
 
 export function wireCatalogView(ctrl: AppController, deps: ControllerDeps): void {
   deps.catalogView.onDownloadGame(ctrl.downloadHandler)
@@ -69,6 +70,28 @@ export function wireEmulatorScan(ctrl: AppController, deps: ControllerDeps): voi
   })
 }
 
+export async function wireHomeView(ctrl: AppController, deps: ControllerDeps): Promise<void> {
+  const recentlyPlayedIds = await ctrl.db.getRecentlyPlayedGames()
+  const recentlyPlayed = recentlyPlayedIds
+    .map((r) => ctrl.allGames.find((g) => g.id === r.gameId))
+    .filter((g): g is Game => g !== undefined)
+  deps.homeView.setContinuePlaying(recentlyPlayed)
+
+  const sorted = [...ctrl.allGames].sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated))
+  deps.homeView.setRecentlyAdded(sorted.slice(0, 8))
+
+  const installedRows = await ctrl.db.query<GameRow>("SELECT * FROM games WHERE install_path IS NOT NULL")
+  const wishlistedIds = new Set(await ctrl.db.getWishlisted())
+  const recommended = computeRecommendations(ctrl.allGames, installedRows, wishlistedIds)
+  deps.homeView.setTrending(recommended)
+
+  deps.homeView.onDownloadGame(ctrl.downloadHandler)
+  deps.homeView.onNavigate('catalog', () => deps.window.navigateTo('catalog'))
+  deps.homeView.onNavigate('library', () => deps.window.navigateTo('library'))
+  deps.homeView.onNavigate('downloads', () => deps.window.navigateTo('downloads'))
+  deps.homeView.onNavigate('settings', () => deps.window.navigateTo('settings'))
+}
+
 export function wireEmulatorLaunch(ctrl: AppController, deps: ControllerDeps): void {
   deps.emulatorsView.onLaunchROM((romId: string) => {
     const rom = ctrl.scannedROMs.find((r) => r.id === romId)
@@ -117,4 +140,5 @@ export function wireAllFeatures(ctrl: AppController, deps: ControllerDeps): void
   wireEmulatorDetection(ctrl, deps)
   wireEmulatorScan(ctrl, deps)
   wireEmulatorLaunch(ctrl, deps)
+  wireHomeView(ctrl, deps)
 }

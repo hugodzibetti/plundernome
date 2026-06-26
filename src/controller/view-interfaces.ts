@@ -5,6 +5,14 @@ import type { LogEntry, LogFilter } from '../services/database'
 import type { SourceHealth } from '../services/types'
 import type { EnrichedMetadata } from '../services/metadata-provider'
 
+export interface IHomeView {
+  setContinuePlaying(games: Game[]): void
+  setRecentlyAdded(games: Game[]): void
+  setTrending(games: Game[]): void
+  onDownloadGame(cb: (gameId: string) => void): void
+  onNavigate(viewId: string, cb: () => void): void
+}
+
 export interface ICatalogView {
   setGames(games: Game[]): void
   focusSearch(): void
@@ -99,6 +107,7 @@ export interface IWindow {
   showToast(title: string, priority?: 'normal' | 'high', timeout?: number): void
   showActionToast(title: string, actionLabel: string, onAction: () => void): void
   showToastWithAction(title: string, actionLabel: string, onAction: () => void): void
+  getHomeView(): IHomeView
   getCatalogView(): ICatalogView
   getLibraryView(): ILibraryView
   getDownloadsView(): IDownloadsView

@@ -2,12 +2,13 @@ import { loadAppCss } from './window-css'
 import { createButton } from './factory'
 import { setupWindowShortcuts } from './shortcuts'
 import { WelcomeView } from './views/welcome-view'
+import { HomeView } from './views/home-view'
 import { CatalogView } from './views/catalog-view'
 import { LibraryView } from './views/library-view'
 import { DownloadsView } from './views/downloads-view'
 import { SettingsView } from './views/settings-view'
 import { EmulatorView } from './views/emulator-view'
-import type { ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IEmulatorView } from '../controller/view-interfaces'
+import type { IHomeView, ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IEmulatorView } from '../controller/view-interfaces'
 import { SettingsManager, GSETTINGS_KEYS } from '../services/gsettings'
 
 const { Gtk, Adw, GObject } = imports.gi
@@ -25,6 +26,7 @@ export const PlundernomeWindow = GObject.registerClass({
   GTypeName: 'PlundernomeWindow',
 }, class PlundernomeWindow extends Adw.ApplicationWindow {
   private stack: GtkStack
+  private homeView: IHomeView
   private catalogView: ICatalogView
   private libraryView: ILibraryView
   private downloadsView: IDownloadsView
@@ -52,11 +54,14 @@ export const PlundernomeWindow = GObject.registerClass({
     header.pack_end(settingsBtn)
 
     this.sidebar = new Gtk.ListBox({ css_classes: ['navigation-sidebar'] }) as GtkListBox & { unselect_all(): void }
+    this.sidebar.append(mkSidebarRow('home', 'go-home-symbolic', 'Home'))
     this.sidebar.append(mkSidebarRow('catalog', 'package-x-generic-symbolic', 'Catalog'))
     this.sidebar.append(mkSidebarRow('library', 'emblem-library-symbolic', 'Library'))
 
     this.stack = new Gtk.Stack()
     this.stack.set_hexpand(true); this.stack.set_vexpand(true)
+    this.homeView = new HomeView()
+    this.stack.add_named(this.homeView, 'home')
     this.catalogView = new CatalogView()
     this.stack.add_named(this.catalogView, 'catalog')
     this.libraryView = new LibraryView()
@@ -67,7 +72,7 @@ export const PlundernomeWindow = GObject.registerClass({
     this.stack.add_named(this.settingsView, 'settings')
     this.emulatorView = new EmulatorView()
     this.stack.add_named(this.emulatorView, 'emulators')
-    this.stack.set_visible_child_name('catalog')
+    this.stack.set_visible_child_name('home')
 
     const sidebarPage = new Adw.NavigationPage({ title: 'Plundernome', child: this.sidebar })
     const contentPage = new Adw.NavigationPage({ title: 'Catalog', child: this.stack })
@@ -108,7 +113,7 @@ export const PlundernomeWindow = GObject.registerClass({
 
   navigateTo(viewId: string): void {
     this.stack.set_visible_child_name(viewId)
-    if (!['catalog', 'library'].includes(viewId)) this.sidebar.unselect_all()
+    if (!['home', 'catalog', 'library'].includes(viewId)) this.sidebar.unselect_all()
   }
 
   showToast(title: string, priority: 'normal' | 'high' = 'normal', timeout?: number): void {
@@ -130,6 +135,7 @@ export const PlundernomeWindow = GObject.registerClass({
     this.showToastWithAction(title, actionLabel, onAction)
   }
 
+  getHomeView(): IHomeView { return this.homeView }
   getCatalogView(): ICatalogView { return this.catalogView }
   getLibraryView(): ILibraryView { return this.libraryView }
   getDownloadsView(): IDownloadsView { return this.downloadsView }

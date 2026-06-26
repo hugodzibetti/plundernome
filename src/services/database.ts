@@ -11,8 +11,14 @@ import {
   logPipelineStep, startPlaySession, endPlaySession,
   getPlaytime, getLaunchOptions, setLaunchOptions,
   savePipelineState, getPipelineState, getAllIncompletePipelines,
-  getPipelineLogs, getLogGameIds,
+  getPipelineLogs, getLogGameIds, getRecentlyPlayedGames,
 } from './database-pipeline';
+import {
+  createCollection, deleteCollection, renameCollection,
+  getAllCollections, addGameToCollection, removeGameFromCollection,
+  getCollectionGames, getGameCollections,
+} from './database-collections';
+import type { Collection } from './database-collections';
 
 export type { LogEntry, LogFilter } from './database-types';
 
@@ -145,4 +151,17 @@ export class DatabaseService implements IDatabaseService {
   async getLogGameIds(): Promise<string[]> {
     return getLogGameIds(this)
   }
+
+  async getRecentlyPlayedGames(): Promise<Array<{ gameId: GameID; lastPlayed: string; playtime: number }>> {
+    return getRecentlyPlayedGames(this)
+  }
+
+  async createCollection(name: string): Promise<string> { return createCollection(this, name) }
+  async deleteCollection(id: string): Promise<void> { return deleteCollection(this, id) }
+  async renameCollection(id: string, name: string): Promise<void> { return renameCollection(this, id, name) }
+  async getAllCollections(): Promise<Collection[]> { return getAllCollections(this) }
+  async addGameToCollection(collectionId: string, gameId: GameID): Promise<void> { return addGameToCollection(this, collectionId, gameId) }
+  async removeGameFromCollection(collectionId: string, gameId: GameID): Promise<void> { return removeGameFromCollection(this, collectionId, gameId) }
+  async getCollectionGames(collectionId: string): Promise<GameID[]> { return getCollectionGames(this, collectionId) }
+  async getGameCollections(gameId: GameID): Promise<Collection[]> { return getGameCollections(this, gameId) }
 }

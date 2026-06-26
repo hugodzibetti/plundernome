@@ -25,23 +25,26 @@ function profileType(profile: CompatProfile): string {
   return 'unknown';
 }
 
-const { Gtk, GObject } = imports.gi;
+const { Gtk, Adw, GObject } = imports.gi;
 
 export const CompatBadge = GObject.registerClass(
   {
     GTypeName: 'CompatBadge',
   },
-  class CompatBadge extends Gtk.Box {
+  class CompatBadge extends Adw.Bin {
     private compatLabel: GtkLabel;
     private protonLabel: GtkLabel | null = null;
     private currentType: string = '';
+    private inner: GtkBox;
 
     constructor(profile: CompatProfile, protonRating?: ProtonDBRating) {
-      super({ spacing: 4, halign: Gtk.Align.START, valign: Gtk.Align.CENTER });
+      super();
       this.add_css_class('compat-badge');
+      this.inner = new Gtk.Box({ spacing: 4, halign: Gtk.Align.START, valign: Gtk.Align.CENTER });
       this.compatLabel = new Gtk.Label({ label: '', xalign: 0 });
       this.compatLabel.add_css_class('compat-badge');
-      this.append(this.compatLabel);
+      this.inner.append(this.compatLabel);
+      this.set_child(this.inner);
       this.setProfile(profile, protonRating);
     }
 
@@ -55,14 +58,14 @@ export const CompatBadge = GObject.registerClass(
       this.currentType = type;
 
       if (this.protonLabel) {
-        this.remove(this.protonLabel);
+        this.inner.remove(this.protonLabel);
         this.protonLabel = null;
       }
       if (protonRating) {
         this.protonLabel = new Gtk.Label({ label: protonRating, xalign: 0 });
         this.protonLabel.add_css_class('protondb-badge');
         this.protonLabel.add_css_class(`protondb-${protonRating}`);
-        this.append(this.protonLabel);
+        this.inner.append(this.protonLabel);
       }
     }
   },

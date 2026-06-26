@@ -119,6 +119,14 @@ export async function getPipelineLogs(
   )
 }
 
+export async function getRecentlyPlayedGames(ctx: DbCtx): Promise<Array<{ gameId: GameID; lastPlayed: string; playtime: number }>> {
+  return ctx.query<{ gameId: GameID; lastPlayed: string; playtime: number }>(
+    `SELECT ps.game_id as gameId, MAX(ps.session_start) as lastPlayed,
+     COALESCE(SUM((julianday(ps.session_end) - julianday(ps.session_start)) * 86400), 0) as playtime
+     FROM play_sessions ps WHERE ps.session_end IS NOT NULL GROUP BY ps.game_id ORDER BY lastPlayed DESC LIMIT 10`,
+  )
+}
+
 export async function getLogGameIds(ctx: DbCtx): Promise<string[]> {
   const rows = await ctx.query<{ game_id: string }>('SELECT DISTINCT game_id FROM pipeline_log ORDER BY game_id')
   return rows.map((r) => r.game_id)
