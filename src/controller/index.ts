@@ -26,6 +26,8 @@ import { loadSourceDefinitions } from './source-loader';
 import { buildParsersMap } from './parser-map';
 import { buildDownloadHandler } from './download-handlers';
 import { buildPlayHandler } from './handlers';
+import { createDebridService } from '../services/debrid-resolver';
+import type { IDebridService } from '../services/debrid-types';
 import { scrapeAllSources } from './scraper';
 import { startAutoUpdate } from './auto-updater';
 import { wireSources, wireBackup } from './settings-wirer';
@@ -42,6 +44,7 @@ export class AppController implements IAppController {
   private sources: SourceDefinition[] = [];
   private autoUpdateTimers: number[] = [];
   private healthTimers: number[] = [];
+  private debrid: IDebridService | null = null;
   allGames: Game[] = [];
   private pipeline: PipelineOrchestrator;
   private syncService: SyncService;
@@ -80,12 +83,16 @@ export class AppController implements IAppController {
     try {
       const s = new SettingsManager();
       const dlDir = s.getString(GSETTINGS_KEYS.INSTALL_PATH) || `${this.sys.getHomeDir()}/Downloads/plundernome`;
+      const provider = s.getString(GSETTINGS_KEYS.DEBRID_PROVIDER);
+      const apiKey = s.getString(GSETTINGS_KEYS.DEBRID_API_KEY);
+      this.debrid = createDebridService(provider, apiKey, this.http);
       this.downloadHandler = buildDownloadHandler(
         () => this.allGames,
         this.pipeline,
         this.deps.window,
         dlDir,
         (id: string) => this.sources.find((s) => s.id === id)?.mirrors ?? [],
+        this.debrid,
       );
     } catch {
       this.downloadHandler = buildDownloadHandler(
@@ -94,6 +101,7 @@ export class AppController implements IAppController {
         this.deps.window,
         `${this.sys.getHomeDir()}/Downloads/plundernome`,
         (id: string) => this.sources.find((s) => s.id === id)?.mirrors ?? [],
+        null,
       );
     }
   }

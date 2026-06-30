@@ -51,4 +51,6 @@ export const GSETTINGS_KEYS = {
   ADAPTIVE_CONCURRENCY: 'adaptive-concurrency',
   COLOR_SCHEME: 'color-scheme',
   FIRST_RUN_COMPLETE: 'first-run-complete',
+  DEBRID_PROVIDER: 'debrid-provider',
+  DEBRID_API_KEY: 'debrid-api-key',
 } as const

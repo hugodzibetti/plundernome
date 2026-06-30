@@ -68,5 +68,15 @@
       <summary>WebDAV password</summary>
       <description>Password for WebDAV authentication.</description>
     </key>
+    <key name="debrid-provider" type="s">
+      <default>''</default>
+      <summary>Debrid service provider</summary>
+      <description>Debrid provider to use: realdebrid, alldebrid, premiumize, or empty for none.</description>
+    </key>
+    <key name="debrid-api-key" type="s">
+      <default>''</default>
+      <summary>Debrid API key</summary>
+      <description>API key for the configured debrid service.</description>
+    </key>
   </schema>
 </schemalist>
