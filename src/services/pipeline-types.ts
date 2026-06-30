@@ -1,6 +1,6 @@
 import type { GameID, PipelineState, PipelineStep } from '../domain/models'
 
-export type PipelineEventType = 'step-change' | 'error' | 'complete' | 'retry' | 'paused'
+export type PipelineEventType = 'step-change' | 'error' | 'complete' | 'retry' | 'skip' | 'paused'
 
 export interface PipelineEvent {
   type: PipelineEventType

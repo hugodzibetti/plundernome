@@ -9,10 +9,19 @@ import { wirePipelineEvents } from './pipeline-wirer'
 import { wireSources, wireBackup } from './settings-wirer'
 import { fetchProtonRatingsBg, startHealthChecks } from './health-wirer'
 import { computeRecommendations } from '../services/recommendations'
+import { scrapeAllSources } from './scraper'
+import { buildParsersMap } from './parser-map'
+import { HtmlParserServiceNew2 } from '../services/html-parser-new2'
 
 export function wireCatalogView(ctrl: AppController, deps: ControllerDeps): void {
   deps.catalogView.onDownloadGame(ctrl.downloadHandler)
   deps.catalogView.onOpenSettings(() => deps.window.navigateTo('settings'))
+  deps.catalogView.onRetryFetch(async () => {
+    const sources = (ctrl as unknown as { sources: import('../domain/catalog/types').SourceDefinition[] }).sources
+    const http = (ctrl as unknown as { http: import('../services/types').IHttpService }).http
+    ctrl.allGames = await scrapeAllSources(sources, http, buildParsersMap(new HtmlParserServiceNew2()), ctrl.db)
+    deps.catalogView.setGames(ctrl.allGames)
+  })
 }
 
 export function wireLibraryView(

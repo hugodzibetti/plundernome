@@ -94,4 +94,14 @@ export async function runMigrations(
     } catch {}
     await execute('INSERT INTO schema_version (version) VALUES (//1)', [9])
   }
+  if (cur < 10) {
+    await execute(
+      `CREATE TABLE IF NOT EXISTS cached_games (
+        source_id TEXT PRIMARY KEY,
+        game_data_json TEXT NOT NULL,
+        cached_at TEXT NOT NULL
+      )`,
+    )
+    await execute('INSERT INTO schema_version (version) VALUES (//1)', [10])
+  }
 }

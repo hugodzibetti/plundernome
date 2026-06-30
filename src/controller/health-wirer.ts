@@ -2,7 +2,7 @@ import type { Game } from '../domain/models'
 import type { SourceDefinition } from '../domain/catalog/types'
 import type { IHttpService, SourceHealth } from '../services/types'
 import type { ProtonDB, ProtonDBRating } from '../services/protondb'
-import type { ISettingsView, IWindow } from './view-interfaces'
+import type { ICatalogView, ISettingsView, IWindow } from './view-interfaces'
 
 export async function fetchProtonRatingsBg(
   allGames: Game[],
@@ -30,8 +30,22 @@ export async function startHealthChecks(
   settingsView: ISettingsView,
   window: IWindow,
   healthTimers: number[],
+  catalogView?: ICatalogView,
 ): Promise<void> {
   const { GLib } = imports.gi
+  const healthMap = new Map<string, SourceHealth>()
+
+  const updateCatalog = (): void => {
+    if (!catalogView) return
+    const allStatuses = sources.map(s =>
+      healthMap.get(s.id) ?? {
+        sourceId: s.id, status: 'down' as const, latencyMs: 0,
+        lastChecked: new Date().toISOString(), consecutiveTimeouts: 0,
+      },
+    )
+    catalogView.setSourceHealth(allStatuses)
+  }
+
   const checkOne = async (source: SourceDefinition) => {
     const start = Date.now()
     let status: 'up' | 'slow' | 'down' = 'down'
@@ -52,7 +66,9 @@ export async function startHealthChecks(
       sourceId: source.id, status, latencyMs,
       lastChecked: new Date().toISOString(), consecutiveTimeouts,
     }
+    healthMap.set(source.id, health)
     settingsView.updateSourceHealth(source.id, health)
+    updateCatalog()
     if (consecutiveTimeouts >= 3) {
       source.enabled = false
       window.showToast(`Source "${source.name}" auto-disabled (3 timeouts)`)

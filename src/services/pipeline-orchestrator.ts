@@ -55,6 +55,13 @@ export class PipelineOrchestrator {
     this.emit({ type: 'retry', gameId, state, step: retry.step, retryCount: 0 });
   }
 
+  skipStep(gameId: GameID): void {
+    const state = this.states.get(gameId)
+    if (!state) return
+    // ponytail: skip notification to listeners, executor continues to next steps
+    this.emit({ type: 'skip', gameId, state, step: state.step })
+  }
+
   retryMirror(gameId: GameID): void {
     const state = this.states.get(gameId);
     const retry = this.retryState.get(gameId);

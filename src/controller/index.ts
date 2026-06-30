@@ -19,6 +19,7 @@ import {
   MetadataProvider,
   SteamService,
   HeroicService,
+  LutrisService,
   CloudSaveService,
   WineManager,
 } from '../services';
@@ -31,6 +32,7 @@ import { buildPlayHandler } from './handlers';
 import { createDebridService } from '../services/debrid-resolver';
 import type { IDebridService } from '../services/debrid-types';
 import { scrapeAllSources } from './scraper';
+import { loadCachedGames } from '../services/cached-games';
 import { startAutoUpdate } from './auto-updater';
 import { wireSources, wireBackup, wireDebridTest, wireWebdavTest } from './settings-wirer';
 import { wirePipelineEvents } from './pipeline-wirer';
@@ -60,6 +62,7 @@ export class AppController implements IAppController {
   emulatorLauncher: EmulatorLauncher;
   steamService: SteamService;
   heroicService: HeroicService;
+  lutrisService: LutrisService;
   cloudSaveService: CloudSaveService;
   wineManager: WineManager;
   detectedEmulators: EmulatorConfig[] = [];
@@ -92,6 +95,7 @@ export class AppController implements IAppController {
     this.emulatorLauncher = new EmulatorLauncher(this.db);
     this.steamService = new SteamService(this.db);
     this.heroicService = new HeroicService(this.db);
+    this.lutrisService = new LutrisService(this.db);
     this.cloudSaveService = new CloudSaveService(this.http, this.db);
     this.wineManager = new WineManager();
     try {
@@ -140,7 +144,17 @@ export class AppController implements IAppController {
         () => refreshLibrary(this),
         (gameId) => buildPlayHandler(this.db, this.launcher, this.deps.window, this.protonRatings, this.wineManager, this.cloudSaveService)(gameId),
       );
-      this.allGames = await scrapeAllSources(this.sources, this.http, buildParsersMap(new HtmlParserServiceNew2()));
+      try {
+        this.allGames = await scrapeAllSources(this.sources, this.http, buildParsersMap(new HtmlParserServiceNew2()), this.db);
+      } catch {
+        const cached = await loadCachedGames(this.db);
+        this.allGames = cached;
+        if (cached.length > 0) {
+          this.deps.window.showToast('Using cached catalog — sources unreachable', 'normal', 5);
+        } else {
+          this.deps.window.showToast('Could not load catalog — check your connection', 'high');
+        }
+      }
       this.deps.catalogView.setGames(this.allGames);
       fetchProtonRatingsBg(this.allGames, this.protonDB, this.protonRatings);
       await refreshLibrary(this);
@@ -150,6 +164,18 @@ export class AppController implements IAppController {
       wireBackup(this.deps.settingsView, this.db, this.deps.window);
       wireDebridTest(this.deps.settingsView, this.debrid, this.deps.window);
       wireWebdavTest(this.deps.settingsView, this.cloudSaveService, this.deps.window);
+      this.deps.settingsView.onLutrisImport(async () => {
+        try {
+          const count = await this.lutrisService.importLibrary();
+          this.deps.window.showToast(`Imported ${count} games from Lutris`);
+          await refreshLibrary(this);
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          this.deps.window.showToast(`Lutris import failed: ${msg}`, 'high');
+        }
+      });
+      this.deps.settingsView.setLutrisInstalled(this.lutrisService.isLutrisInstalled());
+
       this.deps.settingsView.onHeroicImport(async () => {
         try {
           const count = await this.heroicService.importLibrary();
@@ -162,7 +188,7 @@ export class AppController implements IAppController {
       });
       this.autoUpdateTimers = startAutoUpdate(
         this.sources,
-        () => scrapeAllSources(this.sources, this.http, buildParsersMap(new HtmlParserServiceNew2())),
+        () => scrapeAllSources(this.sources, this.http, buildParsersMap(new HtmlParserServiceNew2()), this.db),
         this.deps.catalogView,
       );
       await startHealthChecks(this.http, this.sources, this.deps.settingsView, this.deps.window, this.healthTimers);

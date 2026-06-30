@@ -5,6 +5,11 @@ import type { IDialogService } from './types-dialog'
 import type { DatabaseService } from '../services/database'
 import type { SourceDefinition } from '../domain/catalog/types'
 import type { NotificationService } from '../services/notifications'
+import type { PipelineStep } from '../domain/models'
+import { mapPipelineError } from '../domain/error-messages'
+import { showPipelineErrorDialog } from '../ui/widgets/pipeline-error-dialog'
+
+const { Gtk } = imports.gi
 
 export function wirePipelineEvents(
   pipeline: PipelineOrchestrator,
@@ -19,18 +24,23 @@ export function wirePipelineEvents(
   pipeline.onEvent(async (evt: PipelineEvent) => {
     if (evt.type === 'error' && evt.gameId) {
       const gameRow = await db.getGame(evt.gameId)
+      const gameName = gameRow?.name ?? 'Unknown'
+      const userError = mapPipelineError(evt.step ?? 'downloading' as PipelineStep, evt.error ?? '')
       const source = gameRow ? sources.find(s => s.id === gameRow.sourceId) : null
       const mirrors = source?.mirrors ?? []
-      if (evt.step === 'downloading' && mirrors.length > 0) {
-        const selectedMirror = await dialogService.showRetryWithMirrorDialog(
-          'Download Failed',
-          evt.error ?? 'Unknown error',
-          mirrors,
-        )
-        if (selectedMirror) pipeline.retryMirror(evt.gameId)
-      } else {
-        dialogService.showError('Pipeline Error', evt.error ?? 'Unknown error')
-      }
+
+      showPipelineErrorDialog(
+        window as unknown as GtkWidget,
+        gameName,
+        userError,
+        (action: string) => {
+          if (action === 'retry') pipeline.retryStep(evt.gameId)
+          if (action === 'retry-mirror') pipeline.retryMirror(evt.gameId)
+          if (action === 'skip' && pipeline.skipStep) pipeline.skipStep(evt.gameId)
+          if (action === 'open-settings') window.navigateTo('settings')
+        },
+      )
+      return
     }
     if (evt.type === 'complete') {
       const gameRow = await db.getGame(evt.gameId)

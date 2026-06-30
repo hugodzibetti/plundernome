@@ -324,6 +324,45 @@ declare class AdwToast {
   disconnect(id: number): void;
 }
 
+declare class AdwOverlaySplitView extends AdwWidget {
+  set_sidebar(widget: GtkWidget): void;
+  set_content(widget: GtkWidget): void;
+  set_collapsed(collapsed: boolean): void;
+  get_collapsed(): boolean;
+  set_show_sidebar(show: boolean): void;
+  get_show_sidebar(): boolean;
+  set_sidebar_position(position: number): void;
+}
+
+declare class AdwBanner extends AdwWidget {
+  set_title(title: string): void;
+  set_revealed(revealed: boolean): void;
+  set_button_label(label: string): void;
+  connect(signal: 'button-clicked', callback: () => void): number;
+  connect(signal: string, callback: (...args: unknown[]) => void): number;
+}
+
+declare class AdwClamp extends AdwWidget {
+  set_child(child: GtkWidget): void;
+  set_maximum_size(size: number): void;
+  set_tightening_threshold(threshold: number): void;
+}
+
+declare class AdwBreakpoint {
+  constructor(condition: AdwBreakpointCondition);
+  add_setter(object: GObjectObject, property: string, value: unknown): void;
+  connect(signal: 'apply', callback: () => void): number;
+  connect(signal: 'unapply', callback: () => void): number;
+}
+
+declare type AdwBreakpointCondition = {
+  // opaque — constructed via Adw.BreakpointCondition.parse(str)
+}
+
+declare class AdwBreakpointCondition {
+  static parse(str: string): AdwBreakpointCondition;
+}
+
 declare class AdwClampScrollable extends AdwWidget {
   set_child(child: unknown): void;
   set_vexpand(v: boolean): void;
@@ -379,6 +418,7 @@ declare class AdwMessageDialog extends AdwWidget {
 declare class AdwAlertDialog extends AdwWidget {
   constructor(props?: Record<string, unknown>);
   add_response(id: string, label: string): void;
+  set_response_appearance(id: string, appearance: number): void;
   set_default_response(id: string): void;
   present(parent: GtkWidget): void;
 }
@@ -733,6 +773,15 @@ declare const imports: {
       ToastOverlay: { new (): AdwToastOverlay };
       Toast: { new (props?: Record<string, unknown>): AdwToast };
       ClampScrollable: { new (): AdwClampScrollable };
+      OverlaySplitView: { new (props?: Record<string, unknown>): AdwOverlaySplitView };
+      Breakpoint: {
+        new (condition: AdwBreakpointCondition): AdwBreakpoint;
+      };
+      BreakpointCondition: {
+        parse(str: string): AdwBreakpointCondition;
+      };
+      Banner: { new (props?: Record<string, unknown>): AdwBanner };
+      Clamp: { new (props?: Record<string, unknown>): AdwClamp };
       PreferencesPage: { new (): AdwPreferencesPage };
       PreferencesGroup: { new (props?: Record<string, unknown>): AdwPreferencesGroup };
       ActionRow: { new (props?: Record<string, unknown>): AdwActionRow };

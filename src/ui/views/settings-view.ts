@@ -11,6 +11,7 @@ import { DownloadSettingsGroup } from '../widgets/download-settings-group'
 import { WineSettingsGroup } from '../widgets/wine-settings-group'
 import { SteamSettingsGroup } from '../widgets/steam-settings-group'
 import { HeroicSettingsGroup } from '../widgets/heroic-settings-group'
+import { LutrisSettingsGroup } from '../widgets/lutris-settings-group'
 import { CloudSaveSettingsGroup } from '../widgets/cloud-save-settings-group'
 import { DebridSettingsGroup } from '../widgets/debrid-settings-group'
 import { LanSyncSettingsGroup } from '../widgets/lan-sync-settings-group'
@@ -30,6 +31,7 @@ export const SettingsView = GObject.registerClass(
     private backupView: SettingsBackupView
     private steamGroup: SteamSettingsGroup
     private heroicGroup: HeroicSettingsGroup
+    private lutrisGroup: LutrisSettingsGroup
     private lanGroup: LanSyncSettingsGroup
     private debridGroup: DebridSettingsGroup
     private cloudSaveGroup: CloudSaveSettingsGroup
@@ -54,6 +56,8 @@ export const SettingsView = GObject.registerClass(
       page.add(this.steamGroup.group)
       this.heroicGroup = new HeroicSettingsGroup()
       page.add(this.heroicGroup.group)
+      this.lutrisGroup = new LutrisSettingsGroup()
+      page.add(this.lutrisGroup.group)
       this.lanGroup = new LanSyncSettingsGroup()
       page.add(this.lanGroup.group)
 
@@ -94,6 +98,8 @@ export const SettingsView = GObject.registerClass(
 
     onSteamImport(cb: () => void): void { this.steamGroup.onSteamImport(cb) }
     onHeroicImport(cb: () => void): void { this.heroicGroup.onHeroicImport(cb) }
+    onLutrisImport(cb: () => void): void { this.lutrisGroup.onLutrisImport(cb) }
+    setLutrisInstalled(v: boolean): void { this.lutrisGroup.setInstalled(v) }
     onTestDebrid(cb: () => Promise<boolean>): void { this.debridGroup.onTestConnection(cb) }
     onTestWebdav(cb: () => Promise<boolean>): void { this.cloudSaveGroup.onTestWebdav(cb) }
     onLANSyncToggle(cb: (enabled: boolean) => void): void { this.lanGroup.onLANSyncToggle(cb) }

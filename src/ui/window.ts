@@ -36,6 +36,8 @@ export const PlundernomeWindow = GObject.registerClass({
   private discoverView: IDiscoverView
   private sidebar: GtkListBox & { unselect_all(): void }
   private toastOverlay: AdwToastOverlay
+  private splitView: AdwOverlaySplitView
+  private hamburgerBtn: GtkButton
 
   constructor(app: unknown) {
     super({ application: app, title: 'Plundernome', default_width: 960, default_height: 560 })
@@ -45,6 +47,11 @@ export const PlundernomeWindow = GObject.registerClass({
     this.set_content(toolbar)
     const header = new Adw.HeaderBar()
     toolbar.add_top_bar(header)
+
+    this.hamburgerBtn = createButton({ iconName: 'open-menu-symbolic', tooltip: 'Menu', onClick: () => { this.splitView.set_show_sidebar(!this.splitView.get_show_sidebar()) } })
+    this.hamburgerBtn.add_css_class('flat')
+    this.hamburgerBtn.set_visible(false)
+    header.pack_start(this.hamburgerBtn)
 
     const searchBtn = createButton({ iconName: 'edit-find-symbolic', tooltip: 'Search (Ctrl+F)', onClick: () => (this.stack.get_child_by_name('catalog') as ICatalogView | null)?.focusSearch?.() })
     header.pack_start(searchBtn)
@@ -56,6 +63,7 @@ export const PlundernomeWindow = GObject.registerClass({
     header.pack_end(settingsBtn)
 
     this.sidebar = new Gtk.ListBox({ css_classes: ['navigation-sidebar'] }) as GtkListBox & { unselect_all(): void }
+    this.sidebar.set_size_request(200, -1)
     this.sidebar.append(mkSidebarRow('home', 'go-home-symbolic', 'Home'))
     this.sidebar.append(mkSidebarRow('catalog', 'package-x-generic-symbolic', 'Catalog'))
     this.sidebar.append(mkSidebarRow('library', 'emblem-library-symbolic', 'Library'))
@@ -79,10 +87,23 @@ export const PlundernomeWindow = GObject.registerClass({
     this.stack.add_named(this.discoverView, 'discover')
     this.stack.set_visible_child_name('home')
 
-    const sidebarPage = new Adw.NavigationPage({ title: 'Plundernome', child: this.sidebar })
-    const contentPage = new Adw.NavigationPage({ title: 'Catalog', child: this.stack })
-    const splitView = new Adw.NavigationSplitView()
-    splitView.set_sidebar(sidebarPage); splitView.set_content(contentPage)
+    this.splitView = new Adw.OverlaySplitView({ sidebar_position: 0, show_sidebar: true })
+    this.splitView.set_sidebar(this.sidebar)
+    this.splitView.set_content(this.stack)
+
+    const breakpoint = new Adw.Breakpoint(
+      Adw.BreakpointCondition.parse('max-width: 720px'),
+    )
+    breakpoint.connect('apply', () => {
+      this.splitView.set_collapsed(true)
+      this.hamburgerBtn.set_visible(true)
+    })
+    breakpoint.connect('unapply', () => {
+      this.splitView.set_collapsed(false)
+      this.hamburgerBtn.set_visible(false)
+      this.splitView.set_show_sidebar(true)
+    })
+    this.add_breakpoint(breakpoint)
 
     this.toastOverlay = new Adw.ToastOverlay()
 
@@ -101,10 +122,10 @@ export const PlundernomeWindow = GObject.registerClass({
         this.sidebar.select_row(this.sidebar.get_row_at_index(0))
       })
       rootStack.add_named(welcomeView, 'welcome')
-      rootStack.add_named(splitView, 'app')
+      rootStack.add_named(this.splitView, 'app')
       this.toastOverlay.set_child(rootStack)
     } else {
-      this.toastOverlay.set_child(splitView)
+      this.toastOverlay.set_child(this.splitView)
     }
 
     toolbar.set_content(this.toastOverlay)
@@ -114,6 +135,11 @@ export const PlundernomeWindow = GObject.registerClass({
     })
     setupWindowShortcuts(this, this.stack)
     if (!isFirstRun) this.sidebar.select_row(this.sidebar.get_row_at_index(0))
+  }
+
+  add_breakpoint(bp: AdwBreakpoint): void {
+    // ponytail: AdwApplicationWindow.add_breakpoint exists at runtime but not in types
+    (this as unknown as { add_breakpoint(b: AdwBreakpoint): void }).add_breakpoint(bp)
   }
 
   navigateTo(viewId: string): void {

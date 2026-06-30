@@ -22,6 +22,9 @@ export interface ICatalogView {
   setLoading(loading: boolean): void
   showError(message: string): void
   onOpenSettings(cb: () => void): void
+  setSourceHealth(statuses: SourceHealth[]): void
+  setLastUpdated(timestamp: string): void
+  onRetryFetch(cb: () => void): void
 }
 
 export interface ILibraryEntry {
@@ -92,6 +95,8 @@ export interface ISettingsView {
   addSources(sources: SourceDefinition[]): void
   onSteamImport(cb: () => void): void
   onHeroicImport(cb: () => void): void
+  onLutrisImport(cb: () => void): void
+  setLutrisInstalled(v: boolean): void
   onTestDebrid(cb: () => Promise<boolean>): void
   onTestWebdav(cb: () => Promise<boolean>): void
   onLANSyncToggle(cb: (enabled: boolean) => void): void

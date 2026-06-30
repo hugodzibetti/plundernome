@@ -1,8 +1,10 @@
 import type { Game } from '../../domain/models'
 import type { EnrichedMetadata } from '../../services/metadata-provider'
+import type { SourceHealth } from '../../services/types'
 import { showGameDetailDialog } from '../widgets/game-detail-dialog'
 import { createScrollContent } from '../templates/scroll-content'
 import { GameCard } from '../widgets/game-card'
+import { relativeTime } from '../../domain/relative-time'
 
 const { Gtk, Adw, GObject, GLib } = imports.gi
 
@@ -18,28 +20,39 @@ export const CatalogView = GObject.registerClass(
     private dlHandler: ((gameId: string) => void) | null = null
     private searchHandler: ((query: string) => void) | null = null
     private settingsHandler: (() => void) | null = null
+    private retryHandler: (() => void) | null = null
     private debTimer: number | null = null
     private enrichedMap: Map<string, EnrichedMetadata> = new Map()
+    private healthBanner: AdwBanner
+    private lastUpdatedLbl: GtkLabel
 
     constructor() {
       super()
       this.add_css_class('catalog-view')
 
+      this.healthBanner = new Adw.Banner({ title: '', button_label: 'Retry', use_markup: false })
+      this.healthBanner.set_revealed(false)
+      this.healthBanner.connect('button-clicked', () => this.retryHandler?.())
+
       this.searchEntry = new Gtk.SearchEntry({ placeholder_text: 'Search games…' })
       this.searchEntry.add_css_class('catalog-search-entry')
       this.searchEntry.connect('search-changed', () => this.debouncedSearch())
 
+      this.lastUpdatedLbl = new Gtk.Label({ label: '', xalign: 0, css_classes: ['dim-label', 'catalog-last-updated'] })
+
       this.flowBox = new Gtk.FlowBox()
-      this.flowBox.set_max_children_per_line(3)
-      this.flowBox.set_min_children_per_line(1)
+      this.flowBox.set_max_children_per_line(6)
+      this.flowBox.set_min_children_per_line(2)
       this.flowBox.set_homogeneous(true)
       this.flowBox.set_selection_mode(Gtk.SelectionMode.NONE)
       this.flowBox.add_css_class('catalog-flowbox')
 
       const clamp = createScrollContent(this.flowBox, { expand: true })
 
-      const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 12 })
+      const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 6 })
+      content.append(this.healthBanner)
       content.append(this.searchEntry)
+      content.append(this.lastUpdatedLbl)
       content.append(clamp)
       content.add_css_class('catalog-content')
 
@@ -105,5 +118,26 @@ export const CatalogView = GObject.registerClass(
       this.errorPage.set_description(message)
       this.mainStack.set_visible_child_name('error')
     }
+
+    setSourceHealth(statuses: SourceHealth[]): void {
+      const total = statuses.length
+      const down = statuses.filter(s => s.status === 'down').length
+      if (down === 0) {
+        this.healthBanner.set_revealed(false)
+        return
+      }
+      if (down === total) {
+        this.healthBanner.set_title('Catalog unavailable — check your connection')
+      } else {
+        this.healthBanner.set_title(`${down} source${down > 1 ? 's' : ''} unavailable — showing cached results`)
+      }
+      this.healthBanner.set_revealed(true)
+    }
+
+    setLastUpdated(timestamp: string): void {
+      this.lastUpdatedLbl.set_label(`Updated ${relativeTime(timestamp)}`)
+    }
+
+    onRetryFetch(cb: () => void): void { this.retryHandler = cb }
   },
 )
