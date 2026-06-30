@@ -12,6 +12,7 @@ import { WineSettingsGroup } from '../widgets/wine-settings-group'
 import { SteamSettingsGroup } from '../widgets/steam-settings-group'
 import { HeroicSettingsGroup } from '../widgets/heroic-settings-group'
 import { CloudSaveSettingsGroup } from '../widgets/cloud-save-settings-group'
+import { DebridSettingsGroup } from '../widgets/debrid-settings-group'
 import { LanSyncSettingsGroup } from '../widgets/lan-sync-settings-group'
 import { MetadataSettingsGroup } from '../widgets/metadata-settings-group'
 import { AppearanceGroup } from '../widgets/appearance-group'
@@ -30,6 +31,8 @@ export const SettingsView = GObject.registerClass(
     private steamGroup: SteamSettingsGroup
     private heroicGroup: HeroicSettingsGroup
     private lanGroup: LanSyncSettingsGroup
+    private debridGroup: DebridSettingsGroup
+    private cloudSaveGroup: CloudSaveSettingsGroup
 
     constructor() {
       super()
@@ -54,8 +57,11 @@ export const SettingsView = GObject.registerClass(
       this.lanGroup = new LanSyncSettingsGroup()
       page.add(this.lanGroup.group)
 
+      this.debridGroup = new DebridSettingsGroup()
+      page.add(this.debridGroup.group)
       page.add(new MetadataSettingsGroup().group)
-      page.add(new CloudSaveSettingsGroup().group)
+      this.cloudSaveGroup = new CloudSaveSettingsGroup()
+      page.add(this.cloudSaveGroup.group)
       page.add(new AppearanceGroup().group)
 
       const abGroup = new Adw.PreferencesGroup({ title: _t('settings.about') })
@@ -88,6 +94,8 @@ export const SettingsView = GObject.registerClass(
 
     onSteamImport(cb: () => void): void { this.steamGroup.onSteamImport(cb) }
     onHeroicImport(cb: () => void): void { this.heroicGroup.onHeroicImport(cb) }
+    onTestDebrid(cb: () => Promise<boolean>): void { this.debridGroup.onTestConnection(cb) }
+    onTestWebdav(cb: () => Promise<boolean>): void { this.cloudSaveGroup.onTestWebdav(cb) }
     onLANSyncToggle(cb: (enabled: boolean) => void): void { this.lanGroup.onLANSyncToggle(cb) }
     setPeers(peers: SyncPeer[]): void { this.lanGroup.setPeers(peers) }
     onSyncWithPeer(cb: (peer: SyncPeer) => void): void { this.lanGroup.onSyncWithPeer(cb) }

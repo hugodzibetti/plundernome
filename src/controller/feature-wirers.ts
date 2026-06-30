@@ -135,10 +135,30 @@ export async function refreshLibrary(ctrl: AppController): Promise<void> {
   ctrl.deps.libraryView.setGames(entries)
 }
 
+export function wireDiscoverView(ctrl: AppController, deps: ControllerDeps): void {
+  const games = ctrl.allGames
+
+  const featured = [...games].sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated)).slice(0, 5)
+  deps.discoverView.setFeatured(featured)
+
+  deps.discoverView.setTrending(featured.slice(0, 24))
+
+  const tags = [...new Set(games.flatMap(g => g.tags))].sort()
+  deps.discoverView.setCategories(tags)
+
+  deps.discoverView.onSelectCategory(tag => {
+    const filtered = games.filter(g => g.tags.includes(tag))
+    deps.discoverView.setCategory(tag, filtered)
+  })
+
+  deps.discoverView.onDownloadGame(ctrl.downloadHandler)
+}
+
 export function wireAllFeatures(ctrl: AppController, deps: ControllerDeps): void {
   wireMetadataEnrichment(ctrl.metadataProvider, ctrl.allGames, deps.catalogView)
   wireEmulatorDetection(ctrl, deps)
   wireEmulatorScan(ctrl, deps)
   wireEmulatorLaunch(ctrl, deps)
   wireHomeView(ctrl, deps)
+  wireDiscoverView(ctrl, deps)
 }

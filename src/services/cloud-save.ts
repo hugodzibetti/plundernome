@@ -2,6 +2,7 @@ import type { ICloudSaveService } from './types'
 import type { SaveManifest, SaveFile } from '../domain/cloud-save/types'
 import type { HttpService } from './http'
 import type { DatabaseService } from './database'
+import { SettingsManager } from './gsettings'
 import { syncToWebdav, syncFromWebdav } from './cloud-save-webdav'
 
 const GLib = imports.gi.GLib
@@ -120,6 +121,29 @@ export class CloudSaveService implements ICloudSaveService {
       : 'SELECT manifest_json FROM save_manifests ORDER BY backup_time DESC'
     const rows = await this.db.query<{ manifest_json: string }>(sql, gameId ? [gameId] : [])
     return rows.map(r => JSON.parse(r.manifest_json) as SaveManifest)
+  }
+
+  async checkWebdavConnection(): Promise<boolean> {
+    const url = new SettingsManager().getString('webdav-url')
+    if (!url) return false
+    const Soup = imports.gi.Soup
+    const session = new Soup.Session()
+    const msg = new Soup.Message({ method: 'PROPFIND', uri: url })
+    const settings = new SettingsManager()
+    const user = settings.getString('webdav-user')
+    const pass = settings.getString('webdav-pass')
+    if (user && pass) {
+      const b64 = (imports.gi.GLib as any).base64_encode(
+        new TextEncoder().encode(`${user}:${pass}`),
+      ) as string
+      msg.request_headers.append('Authorization', `Basic ${b64}`)
+    }
+    try {
+      session.send(msg, null)
+      return msg.status_code >= 200 && msg.status_code < 300
+    } catch {
+      return false
+    }
   }
 
   async syncToWebdav(manifest: SaveManifest): Promise<boolean> {

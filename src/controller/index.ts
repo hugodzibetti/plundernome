@@ -32,7 +32,7 @@ import { createDebridService } from '../services/debrid-resolver';
 import type { IDebridService } from '../services/debrid-types';
 import { scrapeAllSources } from './scraper';
 import { startAutoUpdate } from './auto-updater';
-import { wireSources, wireBackup } from './settings-wirer';
+import { wireSources, wireBackup, wireDebridTest, wireWebdavTest } from './settings-wirer';
 import { wirePipelineEvents } from './pipeline-wirer';
 import { fetchProtonRatingsBg, startHealthChecks } from './health-wirer';
 import { GjsSystem, type ISystem } from './system';
@@ -148,6 +148,8 @@ export class AppController implements IAppController {
       if (incomplete.length > 0) this.deps.window.showToast(`${incomplete.length} pipeline(s) incomplete — retry`);
       wireSources(this.deps.settingsView, this.deps.window);
       wireBackup(this.deps.settingsView, this.db, this.deps.window);
+      wireDebridTest(this.deps.settingsView, this.debrid, this.deps.window);
+      wireWebdavTest(this.deps.settingsView, this.cloudSaveService, this.deps.window);
       this.deps.settingsView.onHeroicImport(async () => {
         try {
           const count = await this.heroicService.importLibrary();

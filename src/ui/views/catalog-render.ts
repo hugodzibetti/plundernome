@@ -104,11 +104,13 @@ export function showGameDetail(
   const game = games.find((g) => g.id === gameId);
   if (!game) return;
   const wishlisted = !!game.wishlisted;
+  const sourceIds = [...new Set(games.filter(g2 => g2.name === game.name).map(g2 => g2.sourceId))]
   showGameDetailDialog(
     game,
     enrichedMap.get(gameId),
     () => dlHandler?.(game.id),
     () => wishlistHandler?.(gameId, !wishlisted),
+    sourceIds,
   );
 }
 

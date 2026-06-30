@@ -82,7 +82,8 @@ export const CatalogView = GObject.registerClass(
           const g = this.games.find(g2 => g2.id === id)
           if (!g) return
           const meta = this.enrichedMap.get(id as string)
-          showGameDetailDialog(g, meta, () => this.dlHandler?.(g.id))
+          const sourceIds = [...new Set(this.games.filter(g2 => g2.name === g.name).map(g2 => g2.sourceId))]
+          showGameDetailDialog(g, meta, () => this.dlHandler?.(g.id), undefined, sourceIds)
         })
         card.connect('play-game', (_w: unknown, id: unknown) => this.dlHandler?.(id as string))
         this.flowBox.append(card)

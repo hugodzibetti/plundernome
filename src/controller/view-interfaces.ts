@@ -92,6 +92,8 @@ export interface ISettingsView {
   addSources(sources: SourceDefinition[]): void
   onSteamImport(cb: () => void): void
   onHeroicImport(cb: () => void): void
+  onTestDebrid(cb: () => Promise<boolean>): void
+  onTestWebdav(cb: () => Promise<boolean>): void
   onLANSyncToggle(cb: (enabled: boolean) => void): void
   setPeers(peers: SyncPeer[]): void
   onSyncWithPeer(cb: (peer: SyncPeer) => void): void
@@ -102,6 +104,15 @@ export interface ISettingsView {
   updateSourceHealth(sourceId: string, health: SourceHealth): void
   getSourcesView(): ISettingsSourcesView
   getBackupView(): ISettingsBackupView
+}
+
+export interface IDiscoverView {
+  setFeatured(games: Game[]): void
+  setTrending(games: Game[]): void
+  setCategories(tags: string[]): void
+  setCategory(tag: string, games: Game[]): void
+  onDownloadGame(cb: (gameId: string) => void): void
+  onSelectCategory(cb: (tag: string) => void): void
 }
 
 export interface IWindow {

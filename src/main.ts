@@ -54,6 +54,7 @@ export const PlundernomeApp = GObject.registerClass(
         downloadsView: win.getDownloadsView(),
         settingsView: win.getSettingsView(),
         emulatorsView: win.getEmulatorsView(),
+        discoverView: win.getDiscoverView(),
         window: win,
         dialogService,
         launchOptionsEditor: new LaunchOptionsEditorImpl(),

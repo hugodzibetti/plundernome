@@ -1,5 +1,5 @@
 import type {
-  IHomeView, ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IWindow, IEmulatorView,
+  IHomeView, ICatalogView, ILibraryView, IDownloadsView, ISettingsView, IWindow, IEmulatorView, IDiscoverView,
 } from './view-interfaces'
 import type { IDialogService, ILaunchOptionsEditor } from './types-dialog'
 
@@ -16,6 +16,7 @@ export interface ControllerDeps {
   settingsView: ISettingsView
   window: IWindow
   emulatorsView: IEmulatorView
+  discoverView: IDiscoverView
   dialogService: IDialogService
   launchOptionsEditor: ILaunchOptionsEditor
 }

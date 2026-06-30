@@ -562,12 +562,28 @@ switch {
 }
 
 /* ——— Game Detail Dialog ——— */
-.game-detail-dialog { min-width: 500px; min-height: 400px; padding: 16px; }
-.game-detail-cover { min-height: 200px; border-radius: 8px; background-size: cover; background-position: center; }
-.game-detail-title { font-size: 1.5em; font-weight: bold; margin: 8px 0; }
-.game-detail-meta { margin: 4px 0; opacity: 0.8; }
-.game-detail-desc { margin: 8px 0; line-height: 1.4; }
-.game-detail-screenshot { min-width: 180px; min-height: 100px; border-radius: 4px; margin: 2px; }
+.game-detail-dialog { min-width: 500px; min-height: 400px; }
+.game-detail-content { padding: 0; }
+.game-detail-hero-image { min-height: 200px; border-radius: 8px; background: @shade_color; }
+.game-detail-title { font-size: 1.5em; font-weight: bold; margin: 0; }
+.game-detail-subtitle { margin: 2px 0 6px; opacity: 0.75; font-size: 0.9em; }
+.game-detail-desc { margin: 4px 0; line-height: 1.4; }
+.game-detail-section-heading { font-weight: 600; font-size: 1em; margin: 4px 0; }
+.game-detail-screenshots-scroll { min-height: 170px; }
+.game-detail-screenshots-row { margin: 4px 0; }
+.game-detail-screenshot { min-width: 284px; min-height: 160px; border-radius: 6px; background: @shade_color; }
+.game-detail-details { margin: 4px 0; }
+.game-detail-sources { margin: 8px 0; align-items: center; }
+.game-detail-repack-notes { margin: 4px 0; padding: 8px; background: @card_bg_color; border-radius: 6px; }
+.protondb-badge { font-weight: 600; text-transform: capitalize; }
+.protondb-platinum { color: #e5cc8a; }
+.protondb-gold { color: #d4af37; }
+.protondb-silver { color: #b0b0b0; }
+.protondb-bronze { color: #cd7f32; }
+.protondb-borked { color: #ff4444; }
+.protondb-pending { color: #888888; }
+.source-badge, .tag-chip { font-size: 0.85em; border-radius: 12px; padding: 2px 8px; margin: 2px; }
+.tag-chip { background: @accent_bg_color; color: @accent_fg_color; }
 
 /* ——— Catalog View ——— */
 .catalog-content { padding: 12px; }
@@ -620,3 +636,19 @@ switch {
 .cloud-save-settings-group { margin: 0; }
 .heroic-settings-group { margin: 0; }
 .metadata-settings-note { padding: 8px 16px; font-size: 0.9em; color: @theme_dim_label_color; }
+
+/* ——— Discover View ——— */
+.discover-view { padding: 12px; }
+.discover-section-title { font-size: 1.1em; font-weight: 600; padding: 4px 0; color: @theme_dim_label_color; margin-top: 8px; }
+.discover-hero { min-height: 200px; margin: 6px 0; }
+.discover-categories { margin: 6px 0; }
+.discover-categories-scroll { min-height: 36px; }
+.discover-trending { margin: 6px 0; }
+.discover-card { border-radius: 8px; background: @card_bg_color; padding: 4px; }
+.discover-card-cover { border-radius: 6px; }
+.discover-card-name { font-weight: 600; font-size: 0.9em; }
+.discover-card-source { font-size: 0.8em; }
+.category-chip { border-radius: 16px; padding: 4px 12px; font-size: 0.85em; }
+.category-chip:checked,
+.category-chip.active { background: @accent_bg_color; color: @accent_fg_color; }
+

@@ -696,6 +696,8 @@ declare const imports: {
       };
       PolicyType: {
         NEVER: number;
+        AUTOMATIC: number;
+        ALWAYS: number;
       };
       Align: {
         START: number;

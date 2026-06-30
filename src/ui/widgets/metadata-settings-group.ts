@@ -24,6 +24,15 @@ export class MetadataSettingsGroup {
     this.group.add(createEntryRow('SteamGridDB API Key', s.getString(GSETTINGS_KEYS.STEAMGRIDDB_KEY),
       v => s.setString(GSETTINGS_KEYS.STEAMGRIDDB_KEY, v)))
 
+    const { Gdk } = imports.gi
+    const linkBtn = new Gtk.Button({ label: 'Get IGDB credentials at api.igdb.com' })
+    linkBtn.add_css_class('metadata-settings-link')
+    const display = Gdk.Display.get_default()
+    linkBtn.connect('clicked', () => {
+      Gtk.show_uri(display, 'https://api.igdb.com/', 0)
+    })
+    this.group.add(linkBtn)
+
     const note = new Gtk.Label({
       label: 'Without API keys, cover art uses SteamGridDB (no key needed for basic use)',
       xalign: 0, wrap: true,

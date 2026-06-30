@@ -3,6 +3,8 @@ import type { DatabaseService } from '../services/database'
 import { SettingsManager } from '../services/gsettings'
 import { loadUserSources } from './source-loader'
 import { BackupRestoreService } from '../services/backup-restore'
+import type { IDebridService } from '../services/debrid-types'
+import type { CloudSaveService } from '../services/cloud-save'
 
 export function wireSources(
   settingsView: ISettingsView,
@@ -44,6 +46,43 @@ export function wireSources(
     if (enabled) ids.add(sourceId)
     else ids.delete(sourceId)
     settings.setString('enabled-sources', Array.from(ids).join(','))
+  })
+}
+
+export function wireDebridTest(
+  settingsView: ISettingsView,
+  debrid: IDebridService | null,
+  window: IWindow,
+): void {
+  settingsView.onTestDebrid(async () => {
+    if (!debrid) {
+      window.showToast('No debrid service configured', 'normal', 3)
+      return false
+    }
+    const ok = await debrid.checkHealth()
+    window.showToast(ok ? 'Debrid connected' : 'Debrid check failed', 'normal', 3)
+    return ok
+  })
+}
+
+export function wireWebdavTest(
+  settingsView: ISettingsView,
+  cloudSave: CloudSaveService | null,
+  window: IWindow,
+): void {
+  settingsView.onTestWebdav(async () => {
+    if (!cloudSave) {
+      window.showToast('Cloud save service unavailable', 'normal', 3)
+      return false
+    }
+    try {
+      const ok = await cloudSave.checkWebdavConnection()
+      window.showToast(ok ? 'WebDAV connected' : 'WebDAV connection failed', 'normal', 3)
+      return ok
+    } catch {
+      window.showToast('WebDAV connection failed', 'high', 3)
+      return false
+    }
   })
 }
 

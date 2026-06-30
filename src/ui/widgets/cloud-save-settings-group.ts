@@ -1,12 +1,14 @@
 import { SettingsManager, GSETTINGS_KEYS } from '../../services/gsettings'
-import { createEntryRow } from '../factory'
+import { createEntryRow, createButton } from '../factory'
 
 const { Adw, Gtk } = imports.gi
 
 export class CloudSaveSettingsGroup {
   readonly group: AdwPreferencesGroup
+  private testHandler: (() => Promise<boolean>) | null = null
 
   constructor() {
+    const s = new SettingsManager()
     this.group = new Adw.PreferencesGroup({ title: 'Cloud Saves' })
     this.group.add_css_class('cloud-save-settings-group')
 
@@ -25,6 +27,7 @@ export class CloudSaveSettingsGroup {
     const urlRow = createEntryRow({
       title: 'WebDAV URL',
       value: '',
+      placeholder: 'https://your-nextcloud.com/remote.php/dav/files/username/',
       onChanged: (text: string) => new SettingsManager().setString(GSETTINGS_KEYS.WEBDAV_URL, text),
     })
     this.group.add(urlRow)
@@ -51,7 +54,24 @@ export class CloudSaveSettingsGroup {
     })
     this.group.add(statusRow)
 
-    const s = new SettingsManager()
+    const testBtn = createButton({
+      label: 'Test WebDAV',
+      cssClass: 'flat',
+      onClick: async () => {
+        const ok = await this.testHandler?.() ?? false
+        if (ok) statusRow.set_subtitle('WebDAV connected \u2713')
+        else statusRow.set_subtitle('WebDAV connection failed')
+      },
+    })
+    const testRow = new Adw.ActionRow({ title: 'Verify' })
+    testRow.add_suffix(testBtn)
+    testRow.set_activatable_widget(testBtn)
+    this.group.add(testRow)
+
     toggle.set_active(s.getBool(GSETTINGS_KEYS.CLOUD_SAVE_ENABLED))
+  }
+
+  onTestWebdav(cb: () => Promise<boolean>): void {
+    this.testHandler = cb
   }
 }

@@ -1,87 +1,65 @@
-import type { Game } from '../../domain/models';
-import type { EnrichedMetadata } from '../../services/metadata-provider';
-import { _t } from '../../domain/i18n';
-import { createButton, createToggleButton } from '../factory';
-import { ensureCached } from '../../services/cover-cache';
-import { createGridContent } from '../templates';
+import type { Game } from '../../domain/models'
+import type { EnrichedMetadata } from '../../services/metadata-provider'
+import { createHeroSection } from './game-detail-hero'
+import { createScreenshotsSection } from './game-detail-media'
+import { createDetailsSection } from './game-detail-meta'
+import { createButton } from '../factory'
 
-const { Gtk, Adw } = imports.gi;
+const { Gtk, Adw } = imports.gi
 
 export function showGameDetailDialog(
   game: Game,
   enriched?: EnrichedMetadata | null,
   onDownload?: () => void,
   onWishlist?: () => void,
+  sourceIds?: string[],
+  protonRating?: string | null,
 ): void {
-  const win = new Adw.Window({ modal: true, title: game.name, resizable: true, default_width: 600, default_height: 500 });
-  win.add_css_class('game-detail-dialog');
+  const win = new Adw.Window({ modal: true, title: game.name, resizable: true, default_width: 650, default_height: 600 })
+  win.add_css_class('game-detail-dialog')
 
-  const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 8 });
+  const scrollWin = new Gtk.ScrolledWindow({
+    hscrollbar_policy: Gtk.PolicyType.NEVER,
+    vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+  })
+  scrollWin.set_vexpand(true)
 
-  const coverUrl = enriched?.coverUrl ?? game.imageUrl;
-  if (coverUrl) {
-    const coverPic = new Gtk.Picture();
-    coverPic.add_css_class('game-detail-cover');
-    coverPic.set_content_fit(Gtk.ContentFit.COVER);
-    content.append(coverPic);
-    ensureCached(game.id, coverUrl).then(path => { if (path) coverPic.set_filename(path); });
-  }
+  const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 12 })
+  content.add_css_class('game-detail-content')
+  content.set_margin_start(16)
+  content.set_margin_end(16)
+  content.set_margin_top(16)
+  content.set_margin_bottom(16)
 
-  const titleRow = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 8 });
-  const titleLbl = new Gtk.Label({ label: game.name, xalign: 0 });
-  titleLbl.add_css_class('game-detail-title');
-  titleLbl.set_hexpand(true);
-  titleRow.append(titleLbl);
-  if (onDownload) {
-    titleRow.append(createButton({ label: _t('common.download'), cssClass: 'suggested-action', onClick: onDownload }));
-  }
-  content.append(titleRow);
+  // Hero — background, title, subtitle, action buttons
+  const hero = createHeroSection(game, enriched, onDownload, onWishlist)
+  content.append(hero)
 
-  const metaParts: string[] = [];
-  if (enriched?.genres?.length) metaParts.push(enriched.genres.join(' · '));
-  if (enriched?.releaseDate) metaParts.push(enriched.releaseDate);
-  if (enriched?.developer) metaParts.push(`by ${enriched.developer}`);
-  if (enriched?.publisher && enriched.publisher !== enriched.developer) metaParts.push(`pub: ${enriched.publisher}`);
-  if (metaParts.length) {
-    const metaLbl = new Gtk.Label({ label: metaParts.join('  ·  '), xalign: 0, wrap: true });
-    metaLbl.add_css_class('game-detail-meta');
-    content.append(metaLbl);
-  }
-
-  const infoLbl = new Gtk.Label({ label: `${game.size}  ·  ${game.sourceId}  ·  ${game.lastUpdated}`, xalign: 0 });
-  infoLbl.add_css_class('game-detail-meta');
-  content.append(infoLbl);
-
-  const desc = enriched?.description ?? game.description;
+  // Description
+  const desc = enriched?.description ?? game.description
   if (desc) {
-    const descLbl = new Gtk.Label({ label: desc, xalign: 0, wrap: true, selectable: true, max_width_chars: 60 });
-    descLbl.add_css_class('game-detail-desc');
-    content.append(descLbl);
+    const descLbl = new Gtk.Label({ label: desc, xalign: 0, wrap: true, selectable: true, max_width_chars: 72 })
+    descLbl.add_css_class('game-detail-desc')
+    content.append(descLbl)
   }
 
+  // Screenshots carousel
   if (enriched?.screenshots?.length) {
-    const ssBox = createGridContent();
-    ssBox.set_max_children_per_line(3);
-    ssBox.set_min_children_per_line(1);
-    ssBox.set_halign(Gtk.Align.START);
-    for (const url of enriched.screenshots) {
-      const pic = new Gtk.Picture();
-      pic.set_content_fit(Gtk.ContentFit.COVER);
-      pic.add_css_class('game-detail-screenshot');
-      ssBox.append(pic);
-      ensureCached(game.id, url).then(path => { if (path) pic.set_filename(path); });
-    }
-    content.append(ssBox);
+    const ss = createScreenshotsSection(game.id, enriched.screenshots)
+    if (ss) content.append(ss)
   }
 
-  const bottomBox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 8 });
-  bottomBox.set_halign(Gtk.Align.END);
-  if (onWishlist) {
-    bottomBox.append(createToggleButton({ iconName: 'starred-symbolic', cssClass: 'flat', active: !!game.wishlisted, onToggle: (_active: boolean) => onWishlist() }));
-  }
-  bottomBox.append(createButton({ label: _t('common.close'), onClick: () => win.close() }));
-  content.append(bottomBox);
+  // Details — size, platform, proton rating, sources, tags, repack notes
+  const details = createDetailsSection(game, enriched, sourceIds ?? [], protonRating)
+  content.append(details)
 
-  win.set_content(content);
-  win.present();
+  // Bottom row
+  const bottomRow = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 8 })
+  bottomRow.set_halign(Gtk.Align.END)
+  bottomRow.append(createButton({ label: 'Close', onClick: () => win.close() }))
+  content.append(bottomRow)
+
+  scrollWin.set_child(content)
+  win.set_content(scrollWin)
+  win.present()
 }
