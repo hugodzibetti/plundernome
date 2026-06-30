@@ -616,3 +616,7 @@ switch {
 .home-actions { margin: 8px 0; padding: 4px; }
 .home-section { margin: 10px 0; }
 .home-section-title { font-size: 1.1em; font-weight: 600; padding: 4px 0; color: @theme_dim_label_color; }
+.metadata-settings-group { margin: 0; }
+.cloud-save-settings-group { margin: 0; }
+.heroic-settings-group { margin: 0; }
+.metadata-settings-note { padding: 8px 16px; font-size: 0.9em; color: @theme_dim_label_color; }

@@ -53,4 +53,11 @@ export const GSETTINGS_KEYS = {
   FIRST_RUN_COMPLETE: 'first-run-complete',
   DEBRID_PROVIDER: 'debrid-provider',
   DEBRID_API_KEY: 'debrid-api-key',
+  WEBDAV_URL: 'webdav-url',
+  WEBDAV_USERNAME: 'webdav-user',
+  WEBDAV_PASSWORD: 'webdav-pass',
+  CLOUD_SAVE_ENABLED: 'cloud-save-enabled',
+  IGDB_CLIENT_ID: 'igdb-client-id',
+  IGDB_CLIENT_SECRET: 'igdb-client-secret',
+  STEAMGRIDDB_KEY: 'steamgriddb-api-key',
 } as const

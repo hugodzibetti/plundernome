@@ -349,6 +349,14 @@ declare class AdwActionRow extends AdwWidget {
   remove_suffix(widget: unknown): void;
 }
 
+declare class AdwEntryRow extends AdwActionRow {
+  text: string;
+  title?: string;
+  connect(signal: 'changed', callback: () => void): number;
+}
+
+declare class AdwPasswordEntryRow extends AdwEntryRow {}
+
 declare class AdwComboRow extends AdwActionRow {
   set_model(model: unknown): void;
   get_selected(): number;
@@ -727,6 +735,8 @@ declare const imports: {
       PreferencesGroup: { new (props?: Record<string, unknown>): AdwPreferencesGroup };
       ActionRow: { new (props?: Record<string, unknown>): AdwActionRow };
       ComboRow: { new (props?: Record<string, unknown>): AdwComboRow };
+      EntryRow: { new (props?: Record<string, unknown>): AdwEntryRow };
+      PasswordEntryRow: { new (props?: Record<string, unknown>): AdwPasswordEntryRow };
       StatusPage: { new (props?: Record<string, unknown>): AdwStatusPage };
       MessageDialog: { new (props?: Record<string, unknown>): AdwMessageDialog };
       AlertDialog: { new (props?: Record<string, unknown>): AdwAlertDialog };
@@ -790,6 +800,7 @@ declare const imports: {
       remove(path: string): void;
       compute_checksum_for_string(checksumType: number, str: string, len: number): string;
       file_read_link(path: string): string;
+      file_get_contents(path: string): [ok: boolean, bytes: Uint8Array | null];
       file_set_contents(path: string, contents: string): void;
       build_filenamev(parts: string[]): string;
       Checksum: { new (checksumType: number): GLibChecksum };

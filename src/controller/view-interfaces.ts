@@ -91,6 +91,7 @@ export interface ISettingsBackupView {
 export interface ISettingsView {
   addSources(sources: SourceDefinition[]): void
   onSteamImport(cb: () => void): void
+  onHeroicImport(cb: () => void): void
   onLANSyncToggle(cb: (enabled: boolean) => void): void
   setPeers(peers: SyncPeer[]): void
   onSyncWithPeer(cb: (peer: SyncPeer) => void): void

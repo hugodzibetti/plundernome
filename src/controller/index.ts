@@ -18,7 +18,9 @@ import {
   GSETTINGS_KEYS,
   MetadataProvider,
   SteamService,
+  HeroicService,
   CloudSaveService,
+  WineManager,
 } from '../services';
 import { EmulatorDetector, ROMScanner, EmulatorLauncher } from '../services/emulator';
 import { HtmlParserServiceNew2 } from '../services/html-parser-new2';
@@ -57,7 +59,9 @@ export class AppController implements IAppController {
   romScanner: ROMScanner;
   emulatorLauncher: EmulatorLauncher;
   steamService: SteamService;
+  heroicService: HeroicService;
   cloudSaveService: CloudSaveService;
+  wineManager: WineManager;
   detectedEmulators: EmulatorConfig[] = [];
   scannedROMs: ROMEntry[] = [];
 
@@ -75,11 +79,21 @@ export class AppController implements IAppController {
     });
     this.protonDB = new ProtonDB((url) => this.http.fetch(url).then((r) => ({ status: r.status, body: r.body })));
     this.metadataProvider = new MetadataProvider(this.http);
+    try {
+      const s2 = new SettingsManager();
+      const igdbId = s2.getString(GSETTINGS_KEYS.IGDB_CLIENT_ID);
+      const igdbSecret = s2.getString(GSETTINGS_KEYS.IGDB_CLIENT_SECRET);
+      if (igdbId && igdbSecret) {
+        this.metadataProvider = new MetadataProvider(this.http, igdbId, igdbSecret);
+      }
+    } catch { /* settings not available, use default */ }
     this.emulatorDetector = new EmulatorDetector();
     this.romScanner = new ROMScanner();
     this.emulatorLauncher = new EmulatorLauncher(this.db);
     this.steamService = new SteamService(this.db);
+    this.heroicService = new HeroicService(this.db);
     this.cloudSaveService = new CloudSaveService(this.http, this.db);
+    this.wineManager = new WineManager();
     try {
       const s = new SettingsManager();
       const dlDir = s.getString(GSETTINGS_KEYS.INSTALL_PATH) || `${this.sys.getHomeDir()}/Downloads/plundernome`;
@@ -91,6 +105,7 @@ export class AppController implements IAppController {
         this.pipeline,
         this.deps.window,
         dlDir,
+        this.http,
         (id: string) => this.sources.find((s) => s.id === id)?.mirrors ?? [],
         this.debrid,
       );
@@ -100,6 +115,7 @@ export class AppController implements IAppController {
         this.pipeline,
         this.deps.window,
         `${this.sys.getHomeDir()}/Downloads/plundernome`,
+        this.http,
         (id: string) => this.sources.find((s) => s.id === id)?.mirrors ?? [],
         null,
       );
@@ -122,7 +138,7 @@ export class AppController implements IAppController {
         this.notifications,
         this.sources,
         () => refreshLibrary(this),
-        (gameId) => buildPlayHandler(this.db, this.launcher, this.deps.window)(gameId),
+        (gameId) => buildPlayHandler(this.db, this.launcher, this.deps.window, this.protonRatings, this.wineManager, this.cloudSaveService)(gameId),
       );
       this.allGames = await scrapeAllSources(this.sources, this.http, buildParsersMap(new HtmlParserServiceNew2()));
       this.deps.catalogView.setGames(this.allGames);
@@ -132,6 +148,16 @@ export class AppController implements IAppController {
       if (incomplete.length > 0) this.deps.window.showToast(`${incomplete.length} pipeline(s) incomplete — retry`);
       wireSources(this.deps.settingsView, this.deps.window);
       wireBackup(this.deps.settingsView, this.db, this.deps.window);
+      this.deps.settingsView.onHeroicImport(async () => {
+        try {
+          const count = await this.heroicService.importLibrary();
+          this.deps.window.showToast(`Imported ${count} games from Heroic`);
+          await refreshLibrary(this);
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          this.deps.window.showToast(`Heroic import failed: ${msg}`, 'high');
+        }
+      });
       this.autoUpdateTimers = startAutoUpdate(
         this.sources,
         () => scrapeAllSources(this.sources, this.http, buildParsersMap(new HtmlParserServiceNew2())),

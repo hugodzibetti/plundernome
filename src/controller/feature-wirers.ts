@@ -21,7 +21,7 @@ export function wireLibraryView(
   refreshLibrary: () => Promise<void>,
 ): void {
   const refresh = () => refreshLibrary()
-  deps.libraryView.onPlayGame(buildPlayHandler(ctrl.db, ctrl.launcher, deps.window))
+  deps.libraryView.onPlayGame(buildPlayHandler(ctrl.db, ctrl.launcher, deps.window, ctrl.protonRatings, ctrl.wineManager, ctrl.cloudSaveService))
   deps.libraryView.onRemoveGame(buildRemoveHandler(ctrl.db, refresh, deps.window))
   deps.libraryView.onLaunchOptions(async (gameId: string) => {
     const opts = await ctrl.db.getLaunchOptions(gameId)

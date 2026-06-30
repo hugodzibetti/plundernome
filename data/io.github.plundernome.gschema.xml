@@ -68,6 +68,11 @@
       <summary>WebDAV password</summary>
       <description>Password for WebDAV authentication.</description>
     </key>
+    <key name="cloud-save-enabled" type="b">
+      <default>false</default>
+      <summary>Enable cloud save backups</summary>
+      <description>Automatically back up game saves to WebDAV on game exit.</description>
+    </key>
     <key name="debrid-provider" type="s">
       <default>''</default>
       <summary>Debrid service provider</summary>
@@ -77,6 +82,21 @@
       <default>''</default>
       <summary>Debrid API key</summary>
       <description>API key for the configured debrid service.</description>
+    </key>
+    <key name="igdb-client-id" type="s">
+      <default>''</default>
+      <summary>IGDB client ID</summary>
+      <description>Client ID for Twitch/IGDB API access.</description>
+    </key>
+    <key name="igdb-client-secret" type="s">
+      <default>''</default>
+      <summary>IGDB client secret</summary>
+      <description>Client secret for Twitch/IGDB API access.</description>
+    </key>
+    <key name="steamgriddb-api-key" type="s">
+      <default>''</default>
+      <summary>SteamGridDB API key</summary>
+      <description>API key for SteamGridDB. Not required for basic cover lookups.</description>
     </key>
   </schema>
 </schemalist>

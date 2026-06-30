@@ -91,7 +91,7 @@ export function buildLaunchCommand(executable: string, profile: CompatProfile, g
   })
 
   if (profile.needsProton) {
-    const protonPath = findProtonPath()
+    const protonPath = profile.protonOverridePath ?? findProtonPath()
     const prefixPath = buildPrefixPath(profile.prefixArch, gameId, profile.env.WINEPREFIX)
     envParts.push(`STEAM_COMPAT_DATA_PATH=${prefixPath}`)
     envParts.push('STEAM_COMPAT_CLIENT_INSTALL_PATH=~/.steam/steam')

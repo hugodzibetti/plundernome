@@ -21,6 +21,8 @@ export interface CompatProfile {
   launchCommand?: string;
   mainExecutable?: string;
   isLinuxNative: boolean;
+  /** Path to custom Proton binary, overrides auto-detection */
+  protonOverridePath?: string;
 }
 
 export interface ICompatDetector {

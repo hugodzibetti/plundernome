@@ -1,6 +1,6 @@
 import type { Game } from '../../domain/models'
 import type { EnrichedMetadata } from '../../services/metadata-provider'
-import { showDetailDialog } from '../templates/detail-dialog'
+import { showGameDetailDialog } from '../widgets/game-detail-dialog'
 import { createScrollContent } from '../templates/scroll-content'
 import { GameCard } from '../widgets/game-card'
 
@@ -81,12 +81,8 @@ export const CatalogView = GObject.registerClass(
         card.connect('show-detail', (_w: unknown, id: unknown) => {
           const g = this.games.find(g2 => g2.id === id)
           if (!g) return
-          const parent = this.get_native() as GtkWidget | null
-          showDetailDialog({
-            game: { name: g.name, sourceId: g.sourceId, size: g.size, description: g.description, tags: g.tags },
-            onDownload: () => this.dlHandler?.(g.id),
-            parent: parent ?? undefined,
-          })
+          const meta = this.enrichedMap.get(id as string)
+          showGameDetailDialog(g, meta, () => this.dlHandler?.(g.id))
         })
         card.connect('play-game', (_w: unknown, id: unknown) => this.dlHandler?.(id as string))
         this.flowBox.append(card)

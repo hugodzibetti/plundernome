@@ -1,14 +1,16 @@
 import type { Game } from '../domain/models'
-import type { PipelineOrchestrator } from '../services'
+import type { PipelineOrchestrator, HttpService } from '../services'
 import type { IWindow } from './view-interfaces'
 import type { IDebridService } from '../services/debrid-types'
 import { resolveUrl } from '../services/debrid-resolver'
+import { resolveHosterUrl } from '../services/hosters/resolver'
 
 export function buildDownloadHandler(
   getGames: () => Game[],
   pipeline: PipelineOrchestrator,
   win: IWindow,
   downloadDir: string,
+  http: HttpService,
   getMirrors?: (sourceId: string) => string[],
   debrid?: IDebridService | null,
 ): (gameId: string) => void {
@@ -24,12 +26,16 @@ export function buildDownloadHandler(
     const ext = game.downloadType === 'torrent' ? '.torrent' : '.zip'
     const downloadPath = `${downloadDir}/${sanitized}${ext}`
     const mirrors = getMirrors?.(game.sourceId)
-    const resolvedUrl = await resolveUrl(game.url, debrid ?? null)
-    if (debrid && resolvedUrl !== game.url) {
+    const debridUrl = await resolveUrl(game.url, debrid ?? null)
+    if (debrid && debridUrl !== game.url) {
       win.showToast('Link resolved via debrid')
-    } else if (debrid && resolvedUrl === game.url) {
+    } else if (debrid && debridUrl === game.url) {
       win.showToast('Debrid failed — using direct link')
     }
-    pipeline.start(game, resolvedUrl, downloadPath, mirrors).catch(() => {})
+    const { resolvedUrl: finalUrl, hoster } = await resolveHosterUrl(debridUrl, http)
+    if (hoster !== 'direct') {
+      win.showToast(`Resolved via ${hoster}`)
+    }
+    pipeline.start(game, finalUrl, downloadPath, mirrors).catch(() => {})
   }
 }
