@@ -1,5 +1,6 @@
 const { Adw, Gtk } = imports.gi
 import { SettingsManager, GSETTINGS_KEYS } from '../../services/gsettings'
+import { createButton } from '../factory'
 
 function createEntryRow(title: string, value: string, onChange: (val: string) => void): AdwActionRow {
   const entry = new Gtk.Entry({ text: value, valign: Gtk.Align.CENTER, hexpand: true })
@@ -25,12 +26,10 @@ export class MetadataSettingsGroup {
       v => s.setString(GSETTINGS_KEYS.STEAMGRIDDB_KEY, v)))
 
     const { Gdk } = imports.gi
-    const linkBtn = new Gtk.Button({ label: 'Get IGDB credentials at api.igdb.com' })
+    const linkBtn = createButton({ label: 'Get IGDB credentials at api.igdb.com', onClick: () => {
+      Gtk.show_uri(Gdk.Display.get_default(), 'https://api.igdb.com/', 0)
+    }})
     linkBtn.add_css_class('metadata-settings-link')
-    const display = Gdk.Display.get_default()
-    linkBtn.connect('clicked', () => {
-      Gtk.show_uri(display, 'https://api.igdb.com/', 0)
-    })
     this.group.add(linkBtn)
 
     const note = new Gtk.Label({

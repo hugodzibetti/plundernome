@@ -7,7 +7,7 @@ import {
   extractElAmigosDownloadLinks,
   extractGloadDownloadLinks,
   extractOvaGamesDownloadLinks,
-} from '../html-parser-download-links';
+} from '../parser/html-parser-download-links';
 
 const elamigosSource = {
   id: 'elamigos',

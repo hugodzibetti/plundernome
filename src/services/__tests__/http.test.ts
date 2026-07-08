@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { HttpService } from '../http'
+import { HttpService } from '../http/http'
 
 const mockSoup = (globalThis as any).mockSoup
 

@@ -1,0 +1,150 @@
+import type { SourceID } from '../../domain/models';
+import type { ParserConfig } from './html-parser-config';
+
+export const EXTRA_PARSER_CONFIGS: Partial<Record<SourceID, ParserConfig>> = {
+  'repack-games': {
+    containers: [{ selector: 'article' }, { selector: 'div', extraSelectors: ['post', 'game-listing'] }],
+    fields: {
+      title: { selector: 'h1 a, h2 a, h3 a, div.entry-title a', extract: 'text' },
+      link: { selector: 'h1 a, h2 a, h3 a, div.entry-title a', extract: 'attr', attr: 'href' },
+      size: { selector: 'span.size, span.post-size', extract: 'text' },
+      description: { selector: 'p' },
+      image: { selector: 'img', extract: 'attr', attr: 'src' },
+      date: { selector: 'time', extract: 'attr', attr: 'datetime' },
+      tags: { selector: 'a[rel=tag], a[rel=category]', extract: 'text' },
+    },
+  },
+  ovagames: {
+    containers: [{ selector: '.home-post-wrap' }],
+    fields: {
+      title: { selector: '.home-post-titles h2 a', extract: 'text' },
+      link: { selector: '.home-post-titles h2 a', extract: 'attr', attr: 'href' },
+      size: { selector: '', extract: 'text' },
+      description: { selector: '', extract: 'text' },
+      image: { selector: 'img.thumbnail', extract: 'attr', attr: 'src' },
+      date: { selector: '', extract: 'text' },
+      tags: { selector: '', extract: 'text' },
+    },
+  },
+  kaoskrew: {
+    containers: [{ selector: 'article' }],
+    fields: {
+      title: { selector: 'h1 a, h2 a, h3 a', extract: 'text' },
+      link: { selector: 'h1 a, h2 a, h3 a', extract: 'attr', attr: 'href' },
+      size: { selector: 'p', extract: 'text-after-label', labelPattern: '^size' },
+      description: { selector: 'p' },
+      image: { selector: 'img', extract: 'attr', attr: 'src' },
+      date: { selector: 'time', extract: 'attr', attr: 'datetime' },
+      tags: { selector: 'a[rel=tag]', extract: 'text' },
+    },
+  },
+  mercs213: {
+    containers: [{ selector: '.game-card' }, { selector: '.post-item' }],
+    fields: {
+      title: { selector: 'h2 a, h3 a', extract: 'text' },
+      link: { selector: 'h2 a, h3 a', extract: 'attr', attr: 'href' },
+      size: { selector: '.file-size, .size', extract: 'text' },
+      description: { selector: '.excerpt, .description', extract: 'text' },
+      image: { selector: 'img.attachment-thumbnail, img.wp-post-image', extract: 'attr', attr: 'src' },
+      date: { selector: '.date, time', extract: 'attr', attr: 'datetime' },
+      tags: { selector: 'a[rel=tag]', extract: 'text' },
+    },
+  },
+  torrminatorr: {
+    containers: [{ selector: 'tr' }],
+    fields: {
+      title: { selector: 'a', extract: 'text' },
+      link: { selector: 'a', extract: 'attr', attr: 'href' },
+      size: { selector: 'td', extract: 'text' },
+      description: { selector: '', extract: 'text' },
+      image: { selector: '', extract: 'attr', attr: 'src' },
+      date: { selector: '', extract: 'text' },
+      tags: { selector: '', extract: 'text' },
+    },
+  },
+  gamecopyworld: {
+    containers: [{ selector: 'table tr' }],
+    fields: {
+      title: { selector: 'td a', extract: 'text' },
+      link: { selector: 'td a', extract: 'attr', attr: 'href' },
+      size: { selector: 'td:last-child', extract: 'text' },
+      description: { selector: '', extract: 'text' },
+      image: { selector: 'img', extract: 'attr', attr: 'src' },
+      date: { selector: '', extract: 'text' },
+      tags: { selector: '', extract: 'text' },
+    },
+  },
+  tinrepacks: {
+    containers: [{ selector: 'article' }, { selector: '.post' }],
+    fields: {
+      title: { selector: 'h1 a, h2 a, h3 a', extract: 'text' },
+      link: { selector: 'h1 a, h2 a, h3 a', extract: 'attr', attr: 'href' },
+      size: { selector: 'p', extract: 'text-after-label', labelPattern: '^size' },
+      description: { selector: 'p' },
+      image: { selector: 'img', extract: 'attr', attr: 'src' },
+      date: { selector: 'time', extract: 'attr', attr: 'datetime' },
+      tags: { selector: 'a[rel=tag]', extract: 'text' },
+    },
+  },
+  tapochek: {
+    containers: [{ selector: 'tr' }],
+    fields: {
+      title: { selector: 'a', extract: 'text' },
+      link: { selector: 'a', extract: 'attr', attr: 'href' },
+      size: { selector: 'td', extract: 'text' },
+      description: { selector: '', extract: 'text' },
+      image: { selector: '', extract: 'attr', attr: 'src' },
+      date: { selector: '', extract: 'text' },
+      tags: { selector: '', extract: 'text' },
+    },
+  },
+  rgmechanics: {
+    containers: [{ selector: 'article' }],
+    fields: {
+      title: { selector: 'h1 a, h2 a, h3 a', extract: 'text' },
+      link: { selector: 'h1 a, h2 a, h3 a', extract: 'attr', attr: 'href' },
+      size: { selector: 'p', extract: 'text-after-label', labelPattern: '^size' },
+      description: { selector: 'p' },
+      image: { selector: 'img', extract: 'attr', attr: 'src' },
+      date: { selector: 'time', extract: 'attr', attr: 'datetime' },
+      tags: { selector: 'a[rel=tag]', extract: 'text' },
+    },
+    sizeContainerFallback: true,
+  },
+  chovka: {
+    containers: [{ selector: '.post-entry' }, { selector: 'article' }],
+    fields: {
+      title: { selector: 'h1 a, h2 a, h3 a', extract: 'text' },
+      link: { selector: 'h1 a, h2 a, h3 a', extract: 'attr', attr: 'href' },
+      size: { selector: 'p', extract: 'text-after-label', labelPattern: '^size' },
+      description: { selector: 'p' },
+      image: { selector: 'img', extract: 'attr', attr: 'src' },
+      date: { selector: 'time', extract: 'attr', attr: 'datetime' },
+      tags: { selector: 'a[rel=tag]', extract: 'text' },
+    },
+  },
+  blackbox: {
+    containers: [{ selector: '.game-box' }, { selector: 'article' }],
+    fields: {
+      title: { selector: 'h1 a, h2 a, h3 a', extract: 'text' },
+      link: { selector: 'h1 a, h2 a, h3 a', extract: 'attr', attr: 'href' },
+      size: { selector: 'p', extract: 'text-after-label', labelPattern: '^size' },
+      description: { selector: 'p' },
+      image: { selector: 'img', extract: 'attr', attr: 'src' },
+      date: { selector: 'time', extract: 'attr', attr: 'datetime' },
+      tags: { selector: 'a[rel=tag]', extract: 'text' },
+    },
+  },
+  scooter: {
+    containers: [{ selector: 'article' }],
+    fields: {
+      title: { selector: 'h1 a, h2 a, h3 a', extract: 'text' },
+      link: { selector: 'h1 a, h2 a, h3 a', extract: 'attr', attr: 'href' },
+      size: { selector: 'p', extract: 'text-after-label', labelPattern: '^size' },
+      description: { selector: 'p' },
+      image: { selector: 'img', extract: 'attr', attr: 'src' },
+      date: { selector: 'time', extract: 'attr', attr: 'datetime' },
+      tags: { selector: 'a[rel=tag]', extract: 'text' },
+    },
+  },
+};

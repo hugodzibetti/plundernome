@@ -1,4 +1,4 @@
-import type { DatabaseService } from './database'
+import type { DatabaseService } from './database/database'
 
 const { GLib, Gio } = imports.gi
 

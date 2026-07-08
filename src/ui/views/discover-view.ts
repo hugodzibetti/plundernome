@@ -122,13 +122,13 @@ export const DiscoverView = GObject.registerClass({
 
 function createDiscoverCard(game: Game, onClick: () => void, featured: boolean): GtkWidget {
   const card = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 4, css_classes: ['discover-card'] })
-  card.set_size_request(featured ? 200 : 180, featured ? 220 : 200)
+  card.add_css_class(featured ? 'discover-card-featured' : 'discover-card-normal')
   card.set_halign(Gtk.Align.START)
 
   const pic = new Gtk.Picture()
   pic.set_content_fit(Gtk.ContentFit.COVER)
-  pic.set_size_request(featured ? 200 : 180, featured ? 160 : 140)
   pic.add_css_class('discover-card-cover')
+  pic.add_css_class(featured ? 'discover-card-cover-featured' : 'discover-card-cover-normal')
   if (game.imageUrl) {
     try { pic.set_filename(game.imageUrl) } catch {}
   }

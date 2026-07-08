@@ -1,6 +1,6 @@
 import { CompatBadge } from './compat-badge';
 import type { Game, CompatProfile } from '../../domain/models';
-import type { ProtonDBRating } from '../../services/protondb';
+import type { ProtonDBRating } from '../../services/proton/protondb';
 import { _t } from '../../domain/i18n';
 import { createButton, createAlertDialog, createMenuPopover } from '../factory';
 

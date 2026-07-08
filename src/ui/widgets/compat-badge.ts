@@ -1,6 +1,6 @@
 import { _t } from '../../domain/i18n';
 import type { CompatProfile } from '../../domain/models';
-import type { ProtonDBRating } from '../../services/protondb';
+import type { ProtonDBRating } from '../../services/proton/protondb';
 
 const PROFILE_MAP: Record<string, { label: () => string; css: string }> = {
   native: { label: () => _t('compat.native'), css: 'native' },

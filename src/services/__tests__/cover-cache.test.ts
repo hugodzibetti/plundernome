@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { getCacheDir, coverPath, cacheExists, ensureCached } from '../cover-cache'
+import { getCacheDir, coverPath, cacheExists, ensureCached } from '../cover/cover-cache'
 
 const mockGLib = (globalThis as any).mockGLib
 const mockGio = (globalThis as any).mockGio

@@ -1,10 +1,10 @@
 import type { ISettingsView, IWindow } from './view-interfaces'
-import type { DatabaseService } from '../services/database'
+import type { DatabaseService } from '../services/database/database'
 import { SettingsManager } from '../services/gsettings'
 import { loadUserSources } from './source-loader'
-import { BackupRestoreService } from '../services/backup-restore'
-import type { IDebridService } from '../services/debrid-types'
-import type { CloudSaveService } from '../services/cloud-save'
+import { BackupRestoreService } from '../services/cloud-save/backup-restore'
+import type { IDebridService } from '../services/download/debrid-types'
+import type { CloudSaveService } from '../services/cloud-save/cloud-save'
 
 export function wireSources(
   settingsView: ISettingsView,

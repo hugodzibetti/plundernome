@@ -1,5 +1,7 @@
 import type { Game } from '../../domain/models'
-import type { EnrichedMetadata } from '../../services/metadata-provider'
+import type { EnrichedMetadata } from '../../services/metadata/metadata-provider'
+import { createBadge } from '../factory'
+import { createGridContent } from '../templates'
 
 const { Gtk, Adw } = imports.gi
 
@@ -48,28 +50,16 @@ export function createDetailsSection(
     const srcLabel = new Gtk.Label({ label: 'Available on:', xalign: 0 })
     srcLabel.add_css_class('dim-label')
     sourcesBox.append(srcLabel)
-    const flowBox = new Gtk.FlowBox()
-    flowBox.set_selection_mode(Gtk.SelectionMode.NONE)
-    flowBox.set_max_children_per_line(10)
-    flowBox.set_halign(Gtk.Align.START)
-    for (const sid of sourceIds) {
-      const chip = new Gtk.Button({ label: sid, css_classes: ['source-badge', 'flat'], can_target: false })
-      flowBox.append(chip)
-    }
+    const chips = sourceIds.map(sid => createBadge(sid, ['source-badge']))
+    const flowBox = createGridContent(chips, { maxPerLine: 10 })
     sourcesBox.append(flowBox)
     section.append(sourcesBox)
   }
 
   // Tags
   if (game.tags?.length) {
-    const tagFlow = new Gtk.FlowBox()
-    tagFlow.set_selection_mode(Gtk.SelectionMode.NONE)
-    tagFlow.set_max_children_per_line(10)
-    tagFlow.set_halign(Gtk.Align.START)
-    for (const tag of game.tags) {
-      const chip = new Gtk.Button({ label: tag, css_classes: ['tag-chip', 'flat'], can_target: false })
-      tagFlow.append(chip)
-    }
+    const tagChips = game.tags.map(tag => createBadge(tag, ['tag-chip']))
+    const tagFlow = createGridContent(tagChips, { maxPerLine: 10 })
     section.append(tagFlow)
   }
 

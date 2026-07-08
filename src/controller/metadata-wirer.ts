@@ -1,5 +1,5 @@
 import type { Game } from '../domain/models'
-import type { MetadataProvider, EnrichedMetadata } from '../services/metadata-provider'
+import type { MetadataProvider, EnrichedMetadata } from '../services/metadata/metadata-provider'
 import type { ICatalogView } from './view-interfaces'
 
 const { GLib } = imports.gi

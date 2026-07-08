@@ -1,7 +1,7 @@
 import type { Game } from '../../domain/models'
-import type { EnrichedMetadata } from '../../services/metadata-provider'
+import type { EnrichedMetadata } from '../../services/metadata/metadata-provider'
 import { createButton, createToggleButton } from '../factory'
-import { ensureCached } from '../../services/cover-cache'
+import { ensureCached } from '../../services/cover/cover-cache'
 
 const { Gtk } = imports.gi
 
@@ -19,7 +19,7 @@ export function createHeroSection(
     const heroPic = new Gtk.Picture()
     heroPic.add_css_class('game-detail-hero-image')
     heroPic.set_content_fit(Gtk.ContentFit.COVER)
-    heroPic.set_size_request(600, 200)
+    heroPic.add_css_class('game-detail-hero-image-sizer')
     box.append(heroPic)
     ensureCached(game.id, heroUrl).then(path => { if (path) heroPic.set_filename(path) })
   }

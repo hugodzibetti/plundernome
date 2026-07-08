@@ -1,7 +1,7 @@
 import type { ControllerDeps, IAppController } from './types';
 import type { Game } from '../domain/models';
 import type { SourceDefinition } from '../domain/catalog/types';
-import type { ProtonDBRating } from '../services/protondb';
+import type { ProtonDBRating } from '../services/proton/protondb';
 import type { EmulatorConfig, ROMEntry } from '../domain/emulator/types';
 import {
   HttpService,
@@ -24,13 +24,13 @@ import {
   WineManager,
 } from '../services';
 import { EmulatorDetector, ROMScanner, EmulatorLauncher } from '../services/emulator';
-import { HtmlParserServiceNew2 } from '../services/html-parser-new2';
+import { HtmlParserServiceNew2 } from '../services/parser/html-parser-new2';
 import { loadSourceDefinitions } from './source-loader';
 import { buildParsersMap } from './parser-map';
 import { buildDownloadHandler } from './download-handlers';
 import { buildPlayHandler } from './handlers';
-import { createDebridService } from '../services/debrid-resolver';
-import type { IDebridService } from '../services/debrid-types';
+import { createDebridService } from '../services/download/debrid-resolver';
+import type { IDebridService } from '../services/download/debrid-types';
 import { scrapeAllSources } from './scraper';
 import { loadCachedGames } from '../services/cached-games';
 import { startAutoUpdate } from './auto-updater';

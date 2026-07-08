@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ProtonDB, generateSlug } from '../protondb'
+import { ProtonDB, generateSlug } from '../proton/protondb'
 
 describe('generateSlug', () => {
   it('lowercases and replaces spaces with underscores', () => {

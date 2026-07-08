@@ -1,7 +1,7 @@
 import type { Game } from '../domain/models'
 import type { SourceDefinition } from '../domain/catalog/types'
 import type { IHttpService, SourceHealth } from '../services/types'
-import type { ProtonDB, ProtonDBRating } from '../services/protondb'
+import type { ProtonDB, ProtonDBRating } from '../services/proton/protondb'
 import type { ICatalogView, ISettingsView, IWindow } from './view-interfaces'
 
 export async function fetchProtonRatingsBg(

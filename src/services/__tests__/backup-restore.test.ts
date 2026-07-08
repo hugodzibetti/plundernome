@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { BackupRestoreService } from '../backup-restore'
-import { DatabaseService } from '../database'
+import { BackupRestoreService } from '../cloud-save/backup-restore'
+import { DatabaseService } from '../database/database'
 
 const mockGLib = (globalThis as any).mockGLib
 const mockGio = (globalThis as any).mockGio

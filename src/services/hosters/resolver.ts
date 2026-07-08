@@ -1,4 +1,4 @@
-import type { HttpService } from '../http'
+import type { HttpService } from '../http/http'
 import { scrapeHosterUrl as scrapeGofile } from './gofile'
 import { scrapeHosterUrl as scrapeMediafire } from './mediafire'
 import { scrapeHosterUrl as scrapePixeldrain } from './pixeldrain'

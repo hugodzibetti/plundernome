@@ -1,7 +1,7 @@
 import type { Game } from '../domain/models'
 import type { SourceDefinition } from '../domain/catalog/types'
 import type { IHttpService } from '../services/types'
-import type { DatabaseService } from '../services/database'
+import type { DatabaseService } from '../services/database/database'
 import { deduplicateGames } from '../domain/dedup'
 import { cacheSourceGames } from '../services/cached-games'
 

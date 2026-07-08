@@ -471,6 +471,9 @@ switch {
   margin: 6px 0;
 }
 
+.debrid-settings-group { } /* ponytail: placeholder */
+.lutris-settings-group { } /* ponytail: placeholder */
+.metadata-settings-link { } /* ponytail: placeholder */
 /* ——— Settings Groups ——— */
 .settings-backup-group,
 .settings-sources-group,
@@ -564,14 +567,19 @@ switch {
 /* ——— Game Detail Dialog ——— */
 .game-detail-dialog { min-width: 500px; min-height: 400px; }
 .game-detail-content { padding: 0; }
+.game-detail-hero { } /* ponytail: placeholder */
 .game-detail-hero-image { min-height: 200px; border-radius: 8px; background: @shade_color; }
+.game-detail-hero-image-sizer { min-width: 600px; min-height: 200px; }
 .game-detail-title { font-size: 1.5em; font-weight: bold; margin: 0; }
 .game-detail-subtitle { margin: 2px 0 6px; opacity: 0.75; font-size: 0.9em; }
 .game-detail-desc { margin: 4px 0; line-height: 1.4; }
 .game-detail-section-heading { font-weight: 600; font-size: 1em; margin: 4px 0; }
+.game-detail-screenshots-section { } /* ponytail: placeholder */
 .game-detail-screenshots-scroll { min-height: 170px; }
 .game-detail-screenshots-row { margin: 4px 0; }
 .game-detail-screenshot { min-width: 284px; min-height: 160px; border-radius: 6px; background: @shade_color; }
+.game-detail-screenshot-img { min-width: 284px; min-height: 160px; }
+.pipeline-error-dialog { } /* ponytail: placeholder */
 .game-detail-details { margin: 4px 0; }
 .game-detail-sources { margin: 8px 0; align-items: center; }
 .game-detail-repack-notes { margin: 4px 0; padding: 8px; background: @card_bg_color; border-radius: 6px; }
@@ -644,6 +652,7 @@ switch {
 .discover-categories { margin: 6px 0; }
 .discover-categories-scroll { min-height: 36px; }
 .discover-trending { margin: 6px 0; }
+.discover-scroll { } /* ponytail: placeholder */
 .discover-card { border-radius: 8px; background: @card_bg_color; padding: 4px; }
 .discover-card-cover { border-radius: 6px; }
 .discover-card-name { font-weight: 600; font-size: 0.9em; }

@@ -1,6 +1,6 @@
 import type { Friend, FriendRequest } from '../domain/social/types'
-import type { CloudSaveRelayClient } from './cloud-save-relay'
-import type { DatabaseService } from './database'
+import type { CloudSaveRelayClient } from './cloud-save/cloud-save-relay'
+import type { DatabaseService } from './database/database'
 
 export class SocialService {
   constructor(

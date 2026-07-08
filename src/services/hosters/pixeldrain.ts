@@ -1,4 +1,4 @@
-import type { HttpService } from '../http'
+import type { HttpService } from '../http/http'
 
 export async function scrapeHosterUrl(url: string, http: HttpService): Promise<string | null> {
   const fileId = new URL(url).pathname.split('/').pop()

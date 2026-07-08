@@ -1,5 +1,5 @@
 import type { Game } from '../domain/models'
-import type { DatabaseService } from './database'
+import type { DatabaseService } from './database/database'
 
 export async function loadCachedGames(db: DatabaseService): Promise<Game[]> {
   const rows = await db.query<{ game_data_json: string }>('SELECT game_data_json FROM cached_games')

@@ -1,6 +1,6 @@
 import type { Game } from '../domain/models';
 import type { SourceDefinition } from '../domain/catalog/types';
-import type { IHTMLParserService } from '../services/html-parser-types';
+import type { IHTMLParserService } from '../services/parser/html-parser-types';
 
 type ParserFn = (html: string, source: SourceDefinition) => Game[];
 

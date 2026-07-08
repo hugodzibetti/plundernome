@@ -1,8 +1,9 @@
 import type { Game } from '../../domain/models'
-import type { EnrichedMetadata } from '../../services/metadata-provider'
+import type { EnrichedMetadata } from '../../services/metadata/metadata-provider'
 import { createHeroSection } from './game-detail-hero'
 import { createScreenshotsSection } from './game-detail-media'
 import { createDetailsSection } from './game-detail-meta'
+import { createScrollContent } from '../templates/scroll-content'
 import { createButton } from '../factory'
 
 const { Gtk, Adw } = imports.gi
@@ -17,12 +18,6 @@ export function showGameDetailDialog(
 ): void {
   const win = new Adw.Window({ modal: true, title: game.name, resizable: true, default_width: 650, default_height: 600 })
   win.add_css_class('game-detail-dialog')
-
-  const scrollWin = new Gtk.ScrolledWindow({
-    hscrollbar_policy: Gtk.PolicyType.NEVER,
-    vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
-  })
-  scrollWin.set_vexpand(true)
 
   const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 12 })
   content.add_css_class('game-detail-content')
@@ -59,7 +54,6 @@ export function showGameDetailDialog(
   bottomRow.append(createButton({ label: 'Close', onClick: () => win.close() }))
   content.append(bottomRow)
 
-  scrollWin.set_child(content)
-  win.set_content(scrollWin)
+  win.set_content(createScrollContent(content, { expand: true }))
   win.present()
 }

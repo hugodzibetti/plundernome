@@ -1,6 +1,6 @@
 import type { PlatformID, BIOSInfo } from '../../domain/emulator/types'
 import type { IBIOSDetector } from '../types'
-import type { DatabaseService } from '../database'
+import type { DatabaseService } from '../database/database'
 
 const KNOWN_BIOS: Array<{ filename: string; platformId: PlatformID; expectedCrc32: string }> = [
   { filename: 'SCPH1001.BIN', platformId: 'ps1', expectedCrc32: '924e392e' },

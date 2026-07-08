@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { WineManager } from '../wine-manager'
+import { WineManager } from '../wine/wine-manager'
 
 const mockGLib = (globalThis as any).mockGLib
 const mockGio = (globalThis as any).mockGio

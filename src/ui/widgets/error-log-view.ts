@@ -1,6 +1,6 @@
 import { createButton } from '../factory'
 import { _t } from '../../domain/i18n'
-import type { LogEntry, LogFilter } from '../../services/database'
+import type { LogEntry, LogFilter } from '../../services/database/database-types'
 
 const { Gtk, Adw, Gdk } = imports.gi
 

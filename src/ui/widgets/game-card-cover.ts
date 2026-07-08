@@ -1,5 +1,5 @@
 const { Gtk } = imports.gi
-import { ensureCached } from '../../services/cover-cache'
+import { ensureCached } from '../../services/cover/cover-cache'
 
 const COVER_W = 200
 const COVER_H = 128

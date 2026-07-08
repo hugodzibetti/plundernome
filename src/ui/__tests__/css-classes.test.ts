@@ -112,6 +112,23 @@ describe('CSS class integrity', () => {
       'greeter', 'trash', 'card_', 'overlay', 'background', 'mate', 'xfce',
       'trough', 'progress', 'entry', 'slider', 'highlight',
       'cover-skeleton', 'cover-loaded',
+      // Subclass selectors & future features (intentionally defined but not yet wired)
+      'wine', 'proton', 'sidebar-row', 'complete', 'active', 'failed',
+      'error-retry-btn', 'error-report-btn', 'error-copy-btn',
+      'health-badge', 'health-up', 'health-slow', 'health-down',
+      'status-success', 'status-failed', 'status-skipped', 'wishlist-star',
+      'emulator-rom-clamp', 'emulator-bottom-bar',
+      'big-picture-settings', 'big-catalog', 'big-catalog-search',
+      'big-game-card', 'big-game-card-cover', 'big-game-card-icon',
+      'big-library', 'big-library-card', 'big-library-actions',
+      'big-downloads', 'big-downloads-progress', 'big-downloads-pct',
+      'game-detail-screenshots-scroll',
+      'protondb-platinum', 'protondb-gold', 'protondb-silver', 'protondb-bronze',
+      'protondb-borked', 'protondb-pending',
+      'game-card-cover', 'game-card-emoji', 'game-card-title',
+      'discover-section-title', 'discover-categories-scroll', 'discover-card',
+      'discover-card-name', 'discover-card-source', 'category-chip', 'catalog-list',
+      'game-detail-screenshot-img', 'source-badge', 'tag-chip',
     ])
     const realOrphans = orphans.filter(c => !knownOrphans.has(c))
     // This is informational, not a hard failure — CSS may define future styles

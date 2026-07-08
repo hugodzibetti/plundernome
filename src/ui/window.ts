@@ -139,7 +139,7 @@ export const PlundernomeWindow = GObject.registerClass({
 
   add_breakpoint(bp: AdwBreakpoint): void {
     // ponytail: AdwApplicationWindow.add_breakpoint exists at runtime but not in types
-    (this as unknown as { add_breakpoint(b: AdwBreakpoint): void }).add_breakpoint(bp)
+    ;(Adw.ApplicationWindow.prototype as unknown as { add_breakpoint(b: AdwBreakpoint): void }).add_breakpoint.call(this, bp)
   }
 
   navigateTo(viewId: string): void {

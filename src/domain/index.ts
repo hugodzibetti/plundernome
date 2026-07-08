@@ -11,6 +11,6 @@ export { _t, setLocale, getCurrentLocale } from './i18n';
 export type { Locale } from './i18n';
 export * from './metadata'
 export * from './emulator'
-export * from './cloud-save'
+export * from './cloud-save/index'
 export * from './achievements'
 export * from './steam'

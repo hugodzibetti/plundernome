@@ -133,4 +133,15 @@ export function createFilePicker(props: {
   picker.present()
 }
 
+export function createBadge(label: string, cssClasses?: string[]): GtkButton {
+  const btn = new Gtk.Button({ label, can_target: false })
+  btn.add_css_class('flat')
+  if (cssClasses) {
+    for (const cls of cssClasses) {
+      btn.add_css_class(cls)
+    }
+  }
+  return btn
+}
+
 export { createEntryRow, createSpinRow, createDetailDialog, createCoverImage, createMenuPopover } from './factory-widgets'

@@ -1,5 +1,5 @@
 import type { Game } from '../domain/models'
-import type { DatabaseService } from './database'
+import type { DatabaseService } from './database/database'
 import type { ILANDiscovery } from './lan-discovery'
 
 export interface SyncPeer {

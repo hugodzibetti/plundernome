@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { DatabaseService } from '../database'
+import { DatabaseService } from '../database/database'
 import type { GameRow } from '../types'
 
 const $ = (globalThis as any)

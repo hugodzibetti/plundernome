@@ -1,5 +1,5 @@
 import type { Achievement, AchievementSet } from '../../domain/achievements/types'
-import type { DatabaseService } from '../database'
+import type { DatabaseService } from '../database/database'
 import { parseIniSection, parseGogJson } from './scanner-parsers'
 
 const Gio = imports.gi.Gio

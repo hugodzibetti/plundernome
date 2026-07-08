@@ -1,6 +1,6 @@
 import type { Game, GameID, PipelineStep, PartProgress } from '../../domain/models'
-import type { DatabaseService } from '../database'
-import type { HttpService } from '../http'
+import type { DatabaseService } from '../database/database'
+import type { HttpService } from '../http/http'
 import type { ITorrentService } from '../types'
 import { buildMultiPartUrls, isNonRetryableError } from './retry-utils'
 

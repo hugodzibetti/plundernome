@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseHtmlFallback } from '../html-dom-fallback'
+import { parseHtmlFallback } from '../parser/html-dom-fallback'
 
 function collectByTag(root: any, tag: string): any[] {
   const list = root.get_elements_by_tag_name(tag)

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { AutoUpdateService } from '../auto-update'
+import { AutoUpdateService } from '../updater/auto-update'
 import type { ICatalogSource } from '../../domain/catalog/types'
 
 const mockGLib = (globalThis as any).mockGLib

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { DependencyInstaller } from '../dependency'
+import { DependencyInstaller } from '../launcher/dependency'
 
 const mockGLib = (globalThis as any).mockGLib
 const mockGio = (globalThis as any).mockGio

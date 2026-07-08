@@ -1,5 +1,5 @@
 import type { GameID } from '../domain/models'
-import type { DatabaseService } from './database'
+import type { DatabaseService } from './database/database'
 
 export interface PlaytimeStats {
   totalPlaytimeSeconds: number

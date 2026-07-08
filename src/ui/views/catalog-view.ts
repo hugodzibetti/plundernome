@@ -1,5 +1,5 @@
 import type { Game } from '../../domain/models'
-import type { EnrichedMetadata } from '../../services/metadata-provider'
+import type { EnrichedMetadata } from '../../services/metadata/metadata-provider'
 import type { SourceHealth } from '../../services/types'
 import { showGameDetailDialog } from '../widgets/game-detail-dialog'
 import { createScrollContent } from '../templates/scroll-content'

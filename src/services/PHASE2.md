@@ -47,5 +47,5 @@ const Soup = imports.gi.Soup
 ```
 
 ## Drift rules
-- If you change an interface in `types.ts`, append drift note to AGENTS.md
+- If you change an interface in `types.ts`, append drift note to docs/AGENTS.md
 - If you discover domain models need changes, note it — don't modify domain/ files (that's another agent's scope)

@@ -4,7 +4,7 @@ import type { Game } from '../../domain/models'
 import type { Achievement } from '../../domain/achievements/types'
 import type { VdfEntry } from './vdf-parser'
 import { parseVdf } from './vdf-parser'
-import type { DatabaseService } from '../database'
+import type { DatabaseService } from '../database/database'
 import { readBinVdf, writeBinVdf, readFileBytes, writeFileBytes } from './vdf-binary'
 
 const GLib = imports.gi.GLib

@@ -1,4 +1,4 @@
-import type { HttpService } from '../http'
+import type { HttpService } from '../http/http'
 
 export class AllDebridService {
   private session: SoupSession

@@ -1,14 +1,14 @@
 import type { Game } from '../domain/models'
-import type { DatabaseService } from '../services/database'
-import type { Launcher } from '../services/launcher'
-import type { CloudSaveService } from '../services/cloud-save'
+import type { DatabaseService } from '../services/database/database'
+import type { Launcher } from '../services/launcher/launcher'
+import type { CloudSaveService } from '../services/cloud-save/cloud-save'
 import type { ControllerDeps } from './types'
 import { SettingsManager, GSETTINGS_KEYS } from '../services/gsettings'
 import { detectCompat } from '../domain/compat/detector'
 import { findExecutable } from './executable-scanner'
-import type { ProtonDBRating } from '../services/protondb'
-import type { WineManager } from '../services/wine-manager'
-import { selectProtonVersion } from '../services/proton-selector'
+import type { ProtonDBRating } from '../services/proton/protondb'
+import type { WineManager } from '../services/wine/wine-manager'
+import { selectProtonVersion } from '../services/proton/proton-selector'
 
 export function buildImportHandler(db: DatabaseService, refresh: () => Promise<void>, win: ControllerDeps['window']) {
   return async (path: string): Promise<void> => {

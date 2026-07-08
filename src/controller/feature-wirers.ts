@@ -2,6 +2,7 @@ import type { ControllerDeps } from './types'
 import type { AppController } from './index'
 import type { Game } from '../domain/models'
 import type { GameRow } from '../services/types'
+import type { LaunchResult } from '../services/launcher/launcher-types'
 import { detectCompat } from '../domain/compat/detector'
 import { buildPlayHandler, buildRemoveHandler } from './handlers'
 import { wireMetadataEnrichment } from './metadata-wirer'
@@ -11,7 +12,7 @@ import { fetchProtonRatingsBg, startHealthChecks } from './health-wirer'
 import { computeRecommendations } from '../services/recommendations'
 import { scrapeAllSources } from './scraper'
 import { buildParsersMap } from './parser-map'
-import { HtmlParserServiceNew2 } from '../services/html-parser-new2'
+import { HtmlParserServiceNew2 } from '../services/parser/html-parser-new2'
 
 export function wireCatalogView(ctrl: AppController, deps: ControllerDeps): void {
   deps.catalogView.onDownloadGame(ctrl.downloadHandler)
@@ -107,7 +108,7 @@ export function wireEmulatorLaunch(ctrl: AppController, deps: ControllerDeps): v
     if (!rom) { deps.window.showToast('ROM not found', 'high'); return }
     const config = ctrl.detectedEmulators.find((c) => c.platformId === rom.platformId)
     if (!config) { deps.window.showToast('No emulator found for platform', 'high'); return }
-    ctrl.emulatorLauncher.launchWithConfig(rom, config).then((result) => {
+    ctrl.emulatorLauncher.launchWithConfig(rom, config).then((result: LaunchResult) => {
       deps.window.showToast(result.success ? `Launched ${rom.name}` : `Launch failed: ${result.errorMessage ?? 'unknown'}`, result.success ? 'normal' : 'high')
     })
   })

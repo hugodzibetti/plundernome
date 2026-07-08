@@ -1,9 +1,9 @@
 import type { Game, CompatProfile, Download } from '../domain/models'
 import type { SourceDefinition } from '../domain/catalog/types'
 import type { SyncPeer } from '../services/sync-service'
-import type { LogEntry, LogFilter } from '../services/database'
+import type { LogEntry, LogFilter } from '../services/database/database'
 import type { SourceHealth } from '../services/types'
-import type { EnrichedMetadata } from '../services/metadata-provider'
+import type { EnrichedMetadata } from '../services/metadata/metadata-provider'
 
 export interface IHomeView {
   setContinuePlaying(games: Game[]): void

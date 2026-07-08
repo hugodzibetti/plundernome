@@ -1,9 +1,9 @@
 import type { Game, GameID, PipelineStep } from '../../domain/models'
 import type { Dependency } from '../../domain/compat/types'
-import type { DatabaseService } from '../database'
-import type { ExtractorService } from '../extractor'
-import type { DependencyInstaller } from '../dependency'
-import type { Launcher } from '../launcher'
+import type { DatabaseService } from '../database/database'
+import type { ExtractorService } from '../extractor/extractor'
+import type { DependencyInstaller } from '../launcher/dependency'
+import type { Launcher } from '../launcher/launcher'
 import type { ProgressFn } from './download-steps'
 
 export async function runExtractStep(

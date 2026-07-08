@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { AdaptiveConcurrencyManager } from '../adaptive-queue'
+import { AdaptiveConcurrencyManager } from '../pipeline-executor/adaptive-queue'
 
 describe('AdaptiveConcurrencyManager', () => {
   beforeEach(() => {

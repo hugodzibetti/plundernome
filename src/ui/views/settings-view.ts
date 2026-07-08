@@ -1,7 +1,7 @@
 import { SourceConfigRow } from '../widgets/source-config'
 import type { SourceDefinition } from '../../domain/catalog/types'
 import type { SyncPeer } from '../../services/sync-service'
-import type { LogEntry, LogFilter } from '../../services/database'
+import type { LogEntry, LogFilter } from '../../services/database/database-types'
 import { ErrorLogView } from '../widgets/error-log-view'
 import type { SourceHealth } from '../../services/types'
 import { _t } from '../../domain/i18n'

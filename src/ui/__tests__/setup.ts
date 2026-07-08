@@ -230,6 +230,10 @@ const mockAdw = {
   NavigationSplitView: class extends MockGtkWidget {
     constructor(props?: Record<string, unknown>) { super(); Object.assign(this, props) }
   } as any,
+  Banner: class extends MockGtkWidget {
+    set_revealed = vi.fn()
+    constructor(props?: Record<string, unknown>) { super(); Object.assign(this, props) }
+  } as any,
   StatusPage: class extends MockGtkWidget {
     constructor(props?: Record<string, unknown>) { super(); Object.assign(this, props) }
   } as any,

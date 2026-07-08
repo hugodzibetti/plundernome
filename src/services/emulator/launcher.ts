@@ -1,6 +1,6 @@
 import type { PlatformID, ROMEntry, EmulatorConfig } from '../../domain/emulator/types'
 import type { IEmulatorLauncher, LaunchResult } from '../types'
-import type { DatabaseService } from '../database'
+import type { DatabaseService } from '../database/database'
 
 export class EmulatorLauncher implements IEmulatorLauncher {
   constructor(private readonly db: DatabaseService) {}

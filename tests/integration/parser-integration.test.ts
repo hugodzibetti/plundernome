@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { HtmlParserService } from '../../src/services/html-parser';
-import { HtmlParserServiceNew2 } from '../../src/services/html-parser-new2';
+import { HtmlParserService } from '../../src/services/parser/html-parser';
+import { HtmlParserServiceNew2 } from '../../src/services/parser/html-parser-new2';
 import type { SourceDefinition } from '../../src/domain/catalog/types';
 
 const FITGIRL: SourceDefinition = {

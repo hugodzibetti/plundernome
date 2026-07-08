@@ -1,8 +1,8 @@
 import type { Game } from '../domain/models'
 import type { PipelineOrchestrator, HttpService } from '../services'
 import type { IWindow } from './view-interfaces'
-import type { IDebridService } from '../services/debrid-types'
-import { resolveUrl } from '../services/debrid-resolver'
+import type { IDebridService } from '../services/download/debrid-types'
+import { resolveUrl } from '../services/download/debrid-resolver'
 import { resolveHosterUrl } from '../services/hosters/resolver'
 
 export function buildDownloadHandler(

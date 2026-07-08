@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ExtractorService } from '../extractor'
+import { ExtractorService } from '../extractor/extractor'
 
 const mockGLib = (globalThis as any).mockGLib
 

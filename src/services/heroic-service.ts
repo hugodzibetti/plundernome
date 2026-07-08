@@ -1,6 +1,6 @@
 import type { Game } from '../domain/models';
 import { createGameID } from '../domain/identity';
-import type { DatabaseService } from './database';
+import type { DatabaseService } from './database/database';
 
 const { GLib } = imports.gi;
 

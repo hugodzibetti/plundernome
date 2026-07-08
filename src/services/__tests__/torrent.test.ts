@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { isValidMagnetURI, isValidTorrentURL, detectTorrentClients, spawnTorrentClient } from '../torrent-client'
-import { TorrentService } from '../torrent'
-import type { HttpService } from '../http'
+import { isValidMagnetURI, isValidTorrentURL, detectTorrentClients, spawnTorrentClient } from '../torrent/torrent-client'
+import { TorrentService } from '../torrent/torrent'
+import type { HttpService } from '../http/http'
 
 const mockGLib = (globalThis as any).mockGLib
 
